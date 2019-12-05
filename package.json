@@ -1,0 +1,31 @@
+{
+  "name": "flamecrud",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "main": "Component.js",
+  "dependencies": {
+    "core-js": "^3.4.3",
+    "flamerest": "github:FlameArt/rest",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.3",
+    "vuejs-datatable": "^2.0.0-alpha.5",
+    "vuex": "^3.1.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.1.0",
+    "@vue/cli-service": "^4.1.0",
+    "node-sass": "^4.12.0",
+    "pug": "^2.0.4",
+    "pug-plain-loader": "^1.0.0",
+    "sass-loader": "^8.0.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
