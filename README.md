@@ -7,6 +7,7 @@
 Импортируем компонент:
 
 ```
+import Vue from 'vue';
 import RESTTable from 'flamecrud';
 Vue.use(RESTTable);
 ```
