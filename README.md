@@ -17,3 +17,11 @@ Vue.use(RESTTable);
     <vueresttable :host="'http://rest'" :selectedtable = "'obj2'"></vueresttable>
     
 `FLAMEREST` так же регистрируется и для `window`
+
+Текущая версия так же требует `Bootstrap`, т.к. в ней сейчас нет дизайна (вообще)
+
+    npm i bootstrap
+
+И в `src/main.js` объявить:
+
+    import 'bootstrap/dist/css/bootstrap.min.css';
