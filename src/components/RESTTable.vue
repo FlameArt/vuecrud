@@ -51,7 +51,7 @@
 
   export default {
     name: "vueresttable",
-    props: ['host', 'selectedtable'],
+    props: ['host', 'selectedtable', 'columnsupdated', 'rowsupdated'],
     data: function () {
       return {
 
@@ -102,13 +102,18 @@
 
           // Получаем данные
           let data = await SuperTHAT.REST.get(SuperTHAT.Table.name, null, null, null, sort, page, perPage);
+          let rows = data.data;
+
+          // Обрабатываем данные перед выводом
+          if(typeof SuperTHAT.rowsupdated === 'function')
+            rows = SuperTHAT.rowsupdated(rows);
 
           // Устанавливаем их
           SuperTHAT.Pager.Total = data.pages.total;
           SuperTHAT.Pager.Count = data.pages.count;
 
           return {
-            rows: data.data,
+            rows: rows,
             totalRowCount: SuperTHAT.Pager.Total,
           }
 
@@ -140,7 +145,17 @@
           Vue.set(that.Table, 'schema', (res.data.find(table=>table.name===that.selectedtable)).fields);
 
           // Преобразуем колонки в формат компонента
-          Vue.set(that.Table, 'columns', that.Table.schema.map( col => { return {label: col.comment, field: col.name}} ));
+          let cols = that.Table.schema.map( col => { return {label: col.comment, field: col.name}} );
+
+          // Применяем к формату колонок коллбек, для их кастомизации
+          if(typeof that.columnsupdated === 'function')
+            cols = that.columnsupdated(cols);
+
+          if(!Array.isArray(cols) || cols.length===0)
+            console.error("Не найдено колонок в таблице или они имеют ошибочный формат (нужен массив)")
+
+          // Сохраняем преобразованные колонки
+          Vue.set(that.Table, 'columns', cols);
 
           // Прогружаем сами записи
           return that.REST.get(that.Table.name);

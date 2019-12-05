@@ -12,9 +12,15 @@ import RESTTable from 'flamecrud';
 Vue.use(RESTTable);
 ```
 
-Используем в шаблоне, указывая endpoint для REST сервиса в `host`, а также таблицу по-умолчанию в `selectedtable`
+Используем в шаблоне с параметрами:
+ 
+* `host`: endpoint для REST сервиса *(обязателен)*
+* `selectedtable` таблица по-умолчанию *(обязательно на текущий момент)*
+* `columnsupdated` коллбек после получения колонок, до их вставки
+* `rowsupdated` коллбек после получения записей, перед их вставкой
 
-    <vueresttable :host="'http://rest'" :selectedtable = "'obj2'"></vueresttable>
+
+    <vueresttable :host="'http://rest'" :selectedtable = "'obj2'" :columnsupdated="column_callback" :rowsupdated="rows_callback"></vueresttable>
     
 `FLAMEREST` так же регистрируется и для `window`
 
@@ -25,3 +31,4 @@ Vue.use(RESTTable);
 И в `src/main.js` объявить:
 
     import 'bootstrap/dist/css/bootstrap.min.css';
+    
