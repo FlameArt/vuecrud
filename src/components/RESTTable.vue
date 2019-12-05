@@ -112,6 +112,9 @@
           SuperTHAT.Pager.Total = data.pages.total;
           SuperTHAT.Pager.Count = data.pages.count;
 
+          // Так же справочно записываем в массив
+          Vue.set(SuperTHAT.Table,'rows', rows);
+
           return {
             rows: rows,
             totalRowCount: SuperTHAT.Pager.Total,
