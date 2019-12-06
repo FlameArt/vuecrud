@@ -121,7 +121,7 @@
 
           // Обрабатываем данные перед выводом
           if(typeof SuperTHAT.rowsupdated === 'function')
-            rows = SuperTHAT.rowsupdated(rows);
+            rows = SuperTHAT.rowsupdated(rows, SuperTHAT.Table.columns, SuperTHAT.Table);
 
           // Устанавливаем их
           SuperTHAT.Pager.Total = data.pages.total;
