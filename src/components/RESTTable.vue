@@ -2,7 +2,7 @@
 
     <div class="col-xs-12 table-responsive">
         <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage"></datatable>
-        <datatable-pager table="mainTable" v-model="Pager.Page" type="short"></datatable-pager>
+        <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
     </div>
 
 
@@ -40,6 +40,7 @@
     pager: {
       classes: {
         pager:    'pagination text-center',
+        li: 'page-item page-link',
         selected: 'active',
       },
       icons: {
