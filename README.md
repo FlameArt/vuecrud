@@ -18,7 +18,7 @@ Vue.use(RESTTable);
 * `selectedtable` таблица по-умолчанию *(обязательно на текущий момент)*
 * `columnsupdated` коллбек после получения колонок, до их вставки
 * `rowsupdated` коллбек после получения записей, перед их вставкой
-
+* `beforeGetRows` коллбек позволяет настроить get-запрос перед применением запроса
 
     <vueresttable :host="'http://rest'" :selectedtable = "'obj2'" :columnsupdated="column_callback" :rowsupdated="rows_callback"></vueresttable>
     

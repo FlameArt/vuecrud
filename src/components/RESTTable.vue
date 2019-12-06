@@ -2,7 +2,7 @@
 
     <div class="col-xs-12 table-responsive">
         <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage"></datatable>
-        <datatable-pager table="mainTable" v-model="Pager.Page"></datatable-pager>
+        <datatable-pager table="mainTable" v-model="Pager.Page" type="short"></datatable-pager>
     </div>
 
 
