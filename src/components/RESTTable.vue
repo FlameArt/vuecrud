@@ -101,14 +101,14 @@
             where: null,
             expand: null,
             fields: null,
-            sortfields: null,
+            sort: null,
             page: page,
             perPage: perPage
           };
 
           // Сортировка
-          if(sortDir === 'asc') request.sortfields = sortBy;
-          if(sortDir === 'desc') request.sortfields = "-" + sortBy;
+          if(sortDir === 'asc') request.sort = sortBy;
+          if(sortDir === 'desc') request.sort = "-" + sortBy;
 
           // Применяем к запросу коллбек, если он прописан
           if(typeof SuperTHAT.beforeGetRows === 'function')
@@ -116,7 +116,7 @@
 
 
           // Получаем данные
-          let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sortfields, request.page, request.perPage);
+          let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage);
           let rows = data.data;
 
           // Обрабатываем данные перед выводом
