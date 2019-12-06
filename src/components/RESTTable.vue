@@ -51,7 +51,7 @@
 
   export default {
     name: "vueresttable",
-    props: ['host', 'selectedtable', 'columnsupdated', 'rowsupdated'],
+    props: ['host', 'selectedtable', 'columnsupdated', 'rowsupdated', 'beforeGetRows'],
     data: function () {
       return {
 
@@ -96,12 +96,27 @@
         async getData( { sortBy, sortDir, perPage, page } ) {
 
           // Формируем запрос
-          let sort = null;
-          if(sortDir === 'asc') sort = sortBy;
-          if(sortDir === 'desc') sort = "-" + sortBy;
+          let request = {
+            tablename: SuperTHAT.Table.name,
+            where: null,
+            expand: null,
+            fields: null,
+            sortfields: null,
+            page: page,
+            perPage: perPage
+          };
+
+          // Сортировка
+          if(sortDir === 'asc') request.sortfields = sortBy;
+          if(sortDir === 'desc') request.sortfields = "-" + sortBy;
+
+          // Применяем к запросу коллбек, если он прописан
+          if(typeof SuperTHAT.beforeGetRows === 'function')
+            request = SuperTHAT.beforeGetRows(request);
+
 
           // Получаем данные
-          let data = await SuperTHAT.REST.get(SuperTHAT.Table.name, null, null, null, sort, page, perPage);
+          let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sortfields, request.page, request.perPage);
           let rows = data.data;
 
           // Обрабатываем данные перед выводом
