@@ -17,6 +17,7 @@
             </div>
         </div>
         <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
+            <!--
             <template slot-scope="{ row, columns }">
                 <tr class="datatable_FilterHeader" v-if="false">
                     <td v-for="col in Table.columns"><input v-model="col.filter"></td>
@@ -25,6 +26,7 @@
                     <td v-for="col in columns">{{ row[col.field] }}</td>
                 </tr>
             </template>
+            -->
         </datatable>
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
     </div>
