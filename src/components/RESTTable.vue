@@ -1,7 +1,31 @@
 <template>
 
     <div class="col-xs-12 table-responsive">
-        <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage"></datatable>
+        <div class="datatableFilters">
+            <div class="input-group" v-for="col in Table.columns" v-show="col.hasFilter">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">{{col.label}}</span>
+                </div>
+
+                <!-- Если это текстовое поле -->
+                <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control" v-model="col.filter" :placeholder="col.label" aria-label="Username" aria-describedby="basic-addon1">
+
+                <input v-if="col.type==='number'"  type="text" class="form-control" v-model="col.filterRange.from" :placeholder="'от'" aria-label="Username" aria-describedby="basic-addon1"/>
+                <input v-if="col.type==='number'"  type="text" class="form-control" v-model="col.filterRange.to" :placeholder="'до '" aria-label="Username" aria-describedby="basic-addon1"/>
+
+
+            </div>
+        </div>
+        <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
+            <template slot-scope="{ row, columns }">
+                <tr class="datatable_FilterHeader" v-if="false">
+                    <td v-for="col in Table.columns"><input v-model="col.filter"></td>
+                </tr>
+                <tr>
+                    <td v-for="col in columns">{{ row[col.field] }}</td>
+                </tr>
+            </template>
+        </datatable>
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
     </div>
 
@@ -111,6 +135,30 @@
           if(sortDir === 'asc') request.sort = sortBy;
           if(sortDir === 'desc') request.sort = "-" + sortBy;
 
+          // Фильтрация
+          // Идём по всем колонкам и добавляем их в запрос
+          let TotalWhere = {};
+          for (let column of SuperTHAT.Table.columns) {
+            // Частичное совпадение
+            if(column.type ==='text' && column.filter !== '') {
+              TotalWhere[column.field] = ['LIKE', column.field, column.filter];
+            }
+            // Точное совпадение
+            if(column.type ==='fixed' && column.filter !== '') {
+              TotalWhere[column.field] = column.filter;
+            }
+            // От до
+            if(column.type ==='number') {
+              if(column.filterRange.from!=='')
+                TotalWhere[column.field+"from"] = ['>=', column.field, column.filterRange.from];
+              if(column.filterRange.to!=='')
+                TotalWhere[column.field+"to"] = ['<=', column.field, column.filterRange.to];
+            }
+          }
+          if(Object.keys(TotalWhere).length>0)
+            request.where = TotalWhere;
+
+
           // Применяем к запросу коллбек, если он прописан
           if(typeof SuperTHAT.beforeGetRows === 'function')
             request = SuperTHAT.beforeGetRows(request);
@@ -164,7 +212,11 @@
           Vue.set(that.Table, 'schema', (res.data.find(table=>table.name===that.selectedtable)).fields);
 
           // Преобразуем колонки в формат компонента
-          let cols = that.Table.schema.map( col => { return {label: col.comment, field: col.name}} );
+          // Типы:
+          // text - поиск через частичное совпадение
+          // number - поиск через от - до
+          // fixed - точное совпадение
+          let cols = that.Table.schema.map( col => { return {label: col.comment, field: col.name, filter: '', filterRange: {from: '', to: ''}, hasFilter: false, type: col.type === "integer" ? 'number' : 'text' }} );
 
           // Применяем к формату колонок коллбек, для их кастомизации
           if(typeof that.columnsupdated === 'function')
@@ -195,5 +247,17 @@
 </script>
 
 <style scoped>
+
+    .datatable_FilterHeader:first-child {
+        background-color: rgba(236,236,236,0.55);
+    }
+    .datatable_FilterHeader:not(:first-child) {
+        display: none;
+    }
+
+    .datatableFilters {
+        display: flex;
+        flex-direction: row;
+    }
 
 </style>
