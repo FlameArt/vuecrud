@@ -32,10 +32,29 @@ Vue.use(RESTTable);
 
     import 'bootstrap/dist/css/bootstrap.min.css';
     
+## Быстрая работа с колонками
+
+Изменение/добавление набора параметров:
+
+    // функция-реплейсер колонок
+    columnsupdated: function (cols) {
+          
+        // Изменить колонку ID
+        cols.set('id',{label: 'TRUST ID', editDesc: 'User ID'});
+        
+        // Удалить колонку name при выводе
+        cols.delete('name');
+                    
+    }
+
+
 ## Формат колонок
     {
         label: 'ЗАГОЛОВОК', 
         field: 'Имя столбца',
+        
+        editName: 'Имя элемента при добавлении/редактировании',
+        editDesc: 'Описание элемента при добавлении/редактировании',
         
         // Наличие выносного фильтра для колонки
         hasFilter: false, 
@@ -50,3 +69,5 @@ Vue.use(RESTTable);
         filter: 'Текстовый фильтр', 
         filterRange: {from: '', to: ''}, // Ренжовый фильтр для значений
     }
+    
+    

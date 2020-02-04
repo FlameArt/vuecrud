@@ -1,17 +1,27 @@
 <template>
 
     <div class="col-xs-12 table-responsive">
+
+        <div class="btn btn-primary" style="cursor: pointer;" v-show="this.opts.canAdd===true" @click="popupAdd()">
+            + Добавить
+        </div>
+
         <div class="datatableFilters">
             <div class="input-group" v-for="col in Table.columns" v-show="col.hasFilter">
+
                 <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">{{col.label}}</span>
+                    <span class="input-group-text" :id="'basic-addon'+col.label">{{col.label}}</span>
                 </div>
 
                 <!-- Если это текстовое поле -->
-                <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control" v-model="col.filter" :placeholder="col.label" aria-label="Username" aria-describedby="basic-addon1">
+                <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control"
+                       v-model="col.filter" :placeholder="col.label" aria-label="Username"
+                       :aria-describedby="'basic-addon'+col.label">
 
-                <input v-if="col.type==='number'"  type="text" class="form-control" v-model="col.filterRange.from" :placeholder="'от'" aria-label="Username" aria-describedby="basic-addon1"/>
-                <input v-if="col.type==='number'"  type="text" class="form-control" v-model="col.filterRange.to" :placeholder="'до '" aria-label="Username" aria-describedby="basic-addon1"/>
+                <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.from"
+                       :placeholder="'от'" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
+                <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.to"
+                       :placeholder="'до '" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
 
 
             </div>
@@ -29,6 +39,42 @@
             -->
         </datatable>
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
+
+        <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
+        <div id="popupWindow" >
+            <transition name="datatable-modal" >
+                <div class="datatable-modal-mask" v-show="Popup.isPopupShowed">
+                    <div class="datatable-modal-wrapper">
+                        <div class="datatable-modal-container">
+
+                            <div class="datatable-modal-header">
+                                ИЗМЕНИТЬ
+                            </div>
+
+                            <div class="datatable-modal-body">
+                                <form>
+                                    <div class="input-group mb-3" v-for="col in Table.columns">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;" :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                        </div>
+                                        <input type="text" class="form-control" :placeholder="col.editComment" aria-label="Имя пользователя" :aria-describedby="'basic-addon'+col.label">
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="datatable-modal-footer">
+                                <button class="btn btn-light" style="margin-right: 10px" @click="">
+                                    Отмена
+                                </button>
+                                <button class="btn btn-success" @click="savePopup()">
+                                        Сохранить
+                                    </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+        </div>
     </div>
 
 
@@ -38,7 +84,7 @@
 
   // Импортим таблицу
   import Vue from 'vue'
-  import { TColumnsDefinition, VuejsDatatableFactory } from 'vuejs-datatable';
+  import {TColumnsDefinition, VuejsDatatableFactory} from 'vuejs-datatable';
 
   // Импортим REST
   import FLAMEREST from "flamerest";
@@ -47,14 +93,14 @@
   let SuperTHAT = null;
 
   // Подгружаем компонент таблиц
-  Vue.use( VuejsDatatableFactory );
+  Vue.use(VuejsDatatableFactory);
 
   // Настраиваем дизайн таблицы
-  VuejsDatatableFactory.useDefaultType( false )
-  .registerTableType( 'datatable', tableType => tableType
-  .mergeSettings( {
+  VuejsDatatableFactory.useDefaultType(false)
+  .registerTableType('datatable', tableType => tableType
+  .mergeSettings({
     table: {
-      class:   'table table-hover table-striped',
+      class: 'table table-hover table-striped',
       /*
       sorting: {
         sortAsc:  '<i class="fas fa-sort-amount-up" title="Sort ascending"></i>',
@@ -65,12 +111,12 @@
     },
     pager: {
       classes: {
-        pager:    'pagination text-center',
+        pager: 'pagination text-center',
         li: 'page-item page-link',
         selected: 'active',
       },
       icons: {
-        next:     '<i class="fas fa-chevron-right" title="Next page"></i>',
+        next: '<i class="fas fa-chevron-right" title="Next page"></i>',
         previous: '<i class="fas fa-chevron-left" title="Previous page"></i>',
       },
     },
@@ -78,7 +124,23 @@
 
   export default {
     name: "vueresttable",
-    props: ['host', 'selectedtable', 'columnsupdated', 'rowsupdated', 'beforeGetRows'],
+    props: {
+      opts: {
+        type: Object,
+        default: function () {
+          return {
+            canAdd: true,
+            canRemove: true,
+            canEdit: true
+          }
+        }
+      },
+      host: String,
+      selectedtable: String,
+      columnsupdated: Function,
+      rowsupdated: Function,
+      beforeGetRows: Function
+    },
     data: function () {
       return {
 
@@ -113,6 +175,18 @@
         },
 
         /**
+         * Параметры попапа изменения и добавления элемента
+         */
+        Popup: {
+
+          /**
+           * Попап показан
+           **/
+          isPopupShowed: false,
+
+        },
+
+        /**
          * Способ получения данных
          * @param sortBy
          * @param sortDir
@@ -120,7 +194,7 @@
          * @param page
          * @return {Promise<{totalRowCount: *, rows: *}>}
          */
-        async getData( { sortBy, sortDir, perPage, page } ) {
+        async getData({sortBy, sortDir, perPage, page}) {
 
           // Формируем запрос
           let request = {
@@ -134,35 +208,35 @@
           };
 
           // Сортировка
-          if(sortDir === 'asc') request.sort = sortBy;
-          if(sortDir === 'desc') request.sort = "-" + sortBy;
+          if (sortDir === 'asc') request.sort = sortBy;
+          if (sortDir === 'desc') request.sort = "-" + sortBy;
 
           // Фильтрация
           // Идём по всем колонкам и добавляем их в запрос
           let TotalWhere = {};
           for (let column of SuperTHAT.Table.columns) {
             // Частичное совпадение
-            if(column.type ==='text' && column.filter !== '') {
+            if (column.type === 'text' && column.filter !== '') {
               TotalWhere[column.field] = ['LIKE', column.field, column.filter];
             }
             // Точное совпадение
-            if(column.type ==='fixed' && column.filter !== '') {
+            if (column.type === 'fixed' && column.filter !== '') {
               TotalWhere[column.field] = column.filter;
             }
             // От до
-            if(column.type ==='number') {
-              if(column.filterRange.from!=='')
-                TotalWhere[column.field+"from"] = ['>=', column.field, column.filterRange.from];
-              if(column.filterRange.to!=='')
-                TotalWhere[column.field+"to"] = ['<=', column.field, column.filterRange.to];
+            if (column.type === 'number') {
+              if (column.filterRange.from !== '')
+                TotalWhere[column.field + "from"] = ['>=', column.field, column.filterRange.from];
+              if (column.filterRange.to !== '')
+                TotalWhere[column.field + "to"] = ['<=', column.field, column.filterRange.to];
             }
           }
-          if(Object.keys(TotalWhere).length>0)
+          if (Object.keys(TotalWhere).length > 0)
             request.where = TotalWhere;
 
 
           // Применяем к запросу коллбек, если он прописан
-          if(typeof SuperTHAT.beforeGetRows === 'function')
+          if (typeof SuperTHAT.beforeGetRows === 'function')
             request = SuperTHAT.beforeGetRows(request);
 
 
@@ -171,7 +245,7 @@
           let rows = data.data;
 
           // Обрабатываем данные перед выводом
-          if(typeof SuperTHAT.rowsupdated === 'function')
+          if (typeof SuperTHAT.rowsupdated === 'function')
             rows = SuperTHAT.rowsupdated(rows, SuperTHAT.Table.columns, SuperTHAT.Table);
 
           // Устанавливаем их
@@ -179,7 +253,7 @@
           SuperTHAT.Pager.Count = data.pages.count;
 
           // Так же справочно записываем в массив
-          Vue.set(SuperTHAT.Table,'rows', rows);
+          Vue.set(SuperTHAT.Table, 'rows', rows);
 
           return {
             rows: rows,
@@ -188,9 +262,27 @@
 
         }
 
-        }
+      }
     },
     methods: {
+
+      /**
+       * Показать попап с добавлением данных
+       */
+      popupAdd: function() {
+        Vue.set(this.Popup, 'isPopupShowed', true);
+      },
+
+      /**
+       * Сохранить параметры в попапе
+       * @param ev
+       */
+      savePopup: function (ev) {
+
+        Vue.set(this.Popup, 'isPopupShowed', false);
+      }
+
+
     },
 
     mounted() {
@@ -205,26 +297,61 @@
 
       // Получаем схему CRUD
       this.REST.getCRUDInfo()
-      .then(res=>{
+      .then(res => {
 
         // Если выбрана таблица, устанавливаем её
-        if(that.selectedtable!==undefined) {
+        if (that.selectedtable !== undefined) {
 
           Vue.set(that.Table, 'name', that.selectedtable);
-          Vue.set(that.Table, 'schema', (res.data.find(table=>table.name===that.selectedtable)).fields);
+          Vue.set(that.Table, 'schema', (res.data.find(table => table.name === that.selectedtable)).fields);
 
           // Преобразуем колонки в формат компонента
           // Типы:
           // text - поиск через частичное совпадение
           // number - поиск через от - до
           // fixed - точное совпадение
-          let cols = that.Table.schema.map( col => { return {label: col.comment, field: col.name, filter: '', filterRange: {from: '', to: ''}, hasFilter: false, type: col.type === "integer" ? 'number' : 'text' }} );
+          let cols = that.Table.schema.map(col => {
+            return {
+              label: col.comment,
+              field: col.name,
+              filter: '',
+              filterRange: {from: '', to: ''},
+              hasFilter: false,
+              type: col.type === "integer" ? 'number' : 'text',
+              editName: col.name,
+              editComment: col.comment
+            }
+          });
+
+          // Добавляем хелперы в колонки, которыми можно быстро изменить состояние
+          Object.defineProperty(cols, 'set', {configurable: true, enumerable: false, value: function (FieldName, Params) {
+              let findedObj = this.find(res=>res.field===FieldName);
+              if(findedObj===undefined) {
+                console.error("VUE Datatable Set Column: Object not found - " + FieldName);
+                return this;
+              }
+              Object.assign(findedObj, Params);
+              return this;
+            }});
+          Object.defineProperty(cols, 'delete', {configurable: true, enumerable: false, value: function (FieldName) {
+              let findedObjIndex = this.findIndex(res=>res.field===FieldName);
+              if(findedObjIndex===-1) {
+                console.error("VUE Datatable Delete Column: Object not found - " + FieldName);
+                return this;
+              }
+              this.splice(findedObjIndex, 1);
+              return this;
+            }});
 
           // Применяем к формату колонок коллбек, для их кастомизации
-          if(typeof that.columnsupdated === 'function')
-            cols = that.columnsupdated(cols);
+          if (typeof that.columnsupdated === 'function') {
+            let changedCols = that.columnsupdated(cols)
+            // Если забыли вернуть значение, ничего, можно пользоваться просто set и delete и всё будет ок
+            if(changedCols!==undefined && Array.isArray(changedCols))
+                cols = changedCols;
+          }
 
-          if(!Array.isArray(cols) || cols.length===0)
+          if (!Array.isArray(cols) || cols.length === 0)
             console.error("Не найдено колонок в таблице или они имеют ошибочный формат (нужен массив)")
 
           // Сохраняем преобразованные колонки
@@ -236,7 +363,7 @@
         }
 
       })
-      .then(res=>{
+      .then(res => {
 
         // Загружаем записи в таблицу
         //Vue.set(that.Table, 'rows', res.data);
@@ -251,8 +378,9 @@
 <style scoped>
 
     .datatable_FilterHeader:first-child {
-        background-color: rgba(236,236,236,0.55);
+        background-color: rgba(236, 236, 236, 0.55);
     }
+
     .datatable_FilterHeader:not(:first-child) {
         display: none;
     }
@@ -260,6 +388,70 @@
     .datatableFilters {
         display: flex;
         flex-direction: row;
+    }
+
+    .datatable-modal-mask {
+        position: fixed;
+        z-index: 9998;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .5);
+        display: table;
+        transition: opacity .3s ease;
+    }
+
+    .datatable-modal-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .datatable-modal-container {
+        width: 800px;
+        margin: 0px auto;
+        padding: 10px 10px;
+        background-color: #fff;
+        border-radius: 2px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+        transition: all .3s ease;
+        font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .datatable-modal-header {
+        margin-top: 0;
+        color: #42b983;
+    }
+
+    .datatable-modal-body {
+        margin: 0px 0;
+    }
+
+    .datatable-modal-default-button {
+        float: right;
+    }
+
+    /*
+     * The following styles are auto-applied to elements with
+     * transition="modal" when their visibility is toggled
+     * by Vue.js.
+     *
+     * You can easily play with the modal transition by editing
+     * these styles.
+     */
+
+    .datatable-modal-enter {
+        opacity: 0;
+    }
+
+    .datatable-modal-leave-active {
+        opacity: 0;
+    }
+
+    .datatable-modal-enter .modal-container,
+    .datatable-modal-leave-active .modal-container {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
     }
 
 </style>
