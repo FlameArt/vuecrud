@@ -1,6 +1,6 @@
 <template>
 
-    <div class="col-xs-12 table-responsive">
+    <div class="col-xs-12 table-responsive" flamecrud>
 
         <div class="btn btn-primary" style="cursor: pointer;" v-show="this.opts.canAdd===true" @click="popupAdd()">
             + Добавить
@@ -41,34 +41,42 @@
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
 
         <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
-        <div id="popupWindow" >
-            <transition name="datatable-modal" >
+        <div id="popupWindow">
+            <transition name="datatable-modal">
                 <div class="datatable-modal-mask" v-show="Popup.isPopupShowed">
                     <div class="datatable-modal-wrapper">
                         <div class="datatable-modal-container">
 
                             <div class="datatable-modal-header">
-                                ИЗМЕНИТЬ
+                                {{Popup.buttonSaveName.toUpperCase()}}
                             </div>
 
                             <div class="datatable-modal-body">
                                 <form>
                                     <div class="input-group mb-3" v-for="col in Table.columns">
                                         <div class="input-group-prepend">
-                                            <span class="input-group-text" style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;" :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                            <span class="input-group-text"
+                                                  style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
+                                                  :id="'basic-addon'+col.label">{{col.editName}}</span>
                                         </div>
-                                        <input type="text" class="form-control" :placeholder="col.editComment" aria-label="Имя пользователя" :aria-describedby="'basic-addon'+col.label">
+                                        <input v-model="Popup.Fields[col.field]" type="text" class="form-control"
+                                               :placeholder="col.editDesc" aria-label="Имя пользователя"
+                                               :aria-describedby="'basic-addon'+col.label">
                                     </div>
                                 </form>
                             </div>
 
                             <div class="datatable-modal-footer">
-                                <button class="btn btn-light" style="margin-right: 10px" @click="">
+                                <button v-show="opts.canRemove" class="btn btn-dark datatable-popup-remove" @click="removePopup()">
+                                    Удалить
+                                </button>
+                                <button class="btn btn-light" style="text-align: center"
+                                        @click="Popup.isPopupShowed=false">
                                     Отмена
                                 </button>
-                                <button class="btn btn-success" @click="savePopup()">
-                                        Сохранить
-                                    </button>
+                                <button class="btn btn-success datatable-popup-save" @click="savePopup()">
+                                    {{Popup.buttonSaveName}}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -101,6 +109,9 @@
   .mergeSettings({
     table: {
       class: 'table table-hover table-striped',
+      row: {
+        class: 'datatable-edit-link'
+      }
       /*
       sorting: {
         sortAsc:  '<i class="fas fa-sort-amount-up" title="Sort ascending"></i>',
@@ -183,6 +194,26 @@
            * Попап показан
            **/
           isPopupShowed: false,
+
+          /**
+           * Название кнопки: добавить\сохранить
+           */
+          buttonSaveName: "Добавить",
+
+          /**
+           * Имя изменяемого поля
+           */
+          editField: '',
+
+          /**
+           * ID изменяемого поля (с названием в editField)
+           */
+          editID: 0,
+
+          /**
+           * Модели для каждого поля в попапе
+           */
+          Fields: {},
 
         },
 
@@ -269,9 +300,37 @@
       /**
        * Показать попап с добавлением данных
        */
-      popupAdd: function() {
+      popupAdd: function () {
+        // Указываем при добавлении, что нет изменяемых полей - это добавление
+        Vue.set(this.Popup, 'editID', "");
+        Vue.set(this.Popup, 'editField', "");
+        Vue.set(this.Popup, 'buttonSaveName', "Добавить");
         Vue.set(this.Popup, 'isPopupShowed', true);
       },
+
+      /**
+       * Показать попап с изменением данных
+       */
+      popupEdit: function (fieldName, fieldID) {
+
+        // Указываем изменяемые поля
+        Vue.set(this.Popup, 'editID', fieldID);
+        Vue.set(this.Popup, 'editField', fieldName);
+        Vue.set(this.Popup, 'buttonSaveName', "Сохранить");
+
+        // Находим редактируемую запись
+        let item = this.Table.rows.find(row => row[fieldName] === fieldID);
+        if (item === undefined) {
+          console.error('Не найдена обновляемая запись: ' + fieldName + " = " + fieldID);
+          return;
+        }
+
+        // Устанавливаем ссылку на оригинальный элемент, и прикрепляем его к модели
+        Vue.set(this.Popup, 'Fields', item);
+
+        Vue.set(this.Popup, 'isPopupShowed', true);
+      },
+
 
       /**
        * Сохранить параметры в попапе
@@ -279,9 +338,33 @@
        */
       savePopup: function (ev) {
 
-        Vue.set(this.Popup, 'isPopupShowed', false);
-      }
+        // В зависимости от типа: нужно сохранить или изменить запись
 
+        // Добавление
+        if (this.editField === "") {
+          this.REST.create(this.Table.name, this.Popup.Fields);
+        }
+        // Изменение
+        else {
+          this.REST.edit(this.Table.name, this.Popup.editID, this.Popup.Fields);
+        }
+        Vue.set(this.Popup, 'isPopupShowed', false);
+      },
+
+      removePopup: function () {
+
+        // Запрашиваем подтверждение
+        if(!window.confirm("ВЫ УВЕРЕНЫ, ЧТО ХОТИТЕ УДАЛИТЬ ЗАПИСЬ: " + JSON.stringify(this.Popup.Fields) + '?')) return;
+
+        // Удаляем
+        this.REST.remove(this.Table.name, this.Popup.editID).then(res=>{
+          debugger;
+        })
+
+        // Закрываем окно
+        Vue.set(this.Popup, 'isPopupShowed', false);
+
+      }
 
     },
 
@@ -319,36 +402,56 @@
               hasFilter: false,
               type: col.type === "integer" ? 'number' : 'text',
               editName: col.name,
-              editComment: col.comment
+              editDesc: col.comment
             }
           });
 
           // Добавляем хелперы в колонки, которыми можно быстро изменить состояние
-          Object.defineProperty(cols, 'set', {configurable: true, enumerable: false, value: function (FieldName, Params) {
-              let findedObj = this.find(res=>res.field===FieldName);
-              if(findedObj===undefined) {
+          Object.defineProperty(cols, 'set', {
+            configurable: true, enumerable: false, value: function (FieldName, Params) {
+              let findedObj = this.find(res => res.field === FieldName);
+              if (findedObj === undefined) {
                 console.error("VUE Datatable Set Column: Object not found - " + FieldName);
                 return this;
               }
               Object.assign(findedObj, Params);
               return this;
-            }});
-          Object.defineProperty(cols, 'delete', {configurable: true, enumerable: false, value: function (FieldName) {
-              let findedObjIndex = this.findIndex(res=>res.field===FieldName);
-              if(findedObjIndex===-1) {
+            }
+          });
+          Object.defineProperty(cols, 'delete', {
+            configurable: true, enumerable: false, value: function (FieldName) {
+              let findedObjIndex = this.findIndex(res => res.field === FieldName);
+              if (findedObjIndex === -1) {
                 console.error("VUE Datatable Delete Column: Object not found - " + FieldName);
                 return this;
               }
               this.splice(findedObjIndex, 1);
               return this;
-            }});
+            }
+          });
 
           // Применяем к формату колонок коллбек, для их кастомизации
           if (typeof that.columnsupdated === 'function') {
             let changedCols = that.columnsupdated(cols)
             // Если забыли вернуть значение, ничего, можно пользоваться просто set и delete и всё будет ок
-            if(changedCols!==undefined && Array.isArray(changedCols))
-                cols = changedCols;
+            if (changedCols !== undefined && Array.isArray(changedCols))
+              cols = changedCols;
+          }
+
+          // Выбираем первую колонку как primary key и устанавливаем её вид как ссылку на редактирование,
+          // если у неё нет замещатора и редактирование поддерживается
+          for (let i = 0; i < cols.length; i++) {
+            if (cols[i].representedAs === undefined && this.opts.canEdit === true) {
+              if (i === 0)
+                cols[i].representedAs = function (row) {
+                  return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + cols[i].field + '\',\'' + row[cols[i].field] + '\')">' + row[cols[i].field] + '</a>'
+                }
+              else
+                cols[i].representedAs = function (row) {
+                  return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + cols[0].field + '\',\'' + row[cols[0].field] + '\')">' + row[cols[i].field] + '</a>'
+                }
+              cols[i].interpolate = true;
+            }
           }
 
           if (!Array.isArray(cols) || cols.length === 0)
@@ -375,7 +478,7 @@
   }
 </script>
 
-<style scoped>
+<style>
 
     .datatable_FilterHeader:first-child {
         background-color: rgba(236, 236, 236, 0.55);
@@ -453,5 +556,20 @@
         -webkit-transform: scale(1.1);
         transform: scale(1.1);
     }
+
+    .datatable-edit-link td a:hover {
+        color: #0aaee7;
+        text-decoration: rgba(37, 126, 185, 0.16) underline;
+        cursor: pointer;
+    }
+
+    .datatable-popup-remove {
+        float: left;
+    }
+
+    .datatable-popup-save {
+        float: right;
+    }
+
 
 </style>

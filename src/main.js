@@ -7,7 +7,7 @@ Vue.config.productionTip = false
 
 
 
-new Vue({
+window.VUE = new Vue({
   router,
   store,
   render: h => h(App)

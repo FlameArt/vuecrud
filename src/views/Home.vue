@@ -11,7 +11,7 @@ export default {
   data: function () {
     return {
       columnsupdated: function (cols) {
-        cols.set('id',{label: 'TRUST'});
+        cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', editName: 'TRUST INFO', editDesc: 'Инфа'});
         cols.delete('name');
         return cols;
       }
