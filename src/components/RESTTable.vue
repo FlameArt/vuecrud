@@ -53,21 +53,35 @@
 
                             <div class="datatable-modal-body">
                                 <form>
-                                    <div class="input-group mb-3" v-for="col in Table.columns">
-                                        <div class="input-group-prepend">
+                                    <div v-for="col in Table.columns">
+                                        <div v-if="col.linkedto===null || col.isLoadKeys===false"
+                                             class="input-group mb-3">
+                                            <div class="input-group-prepend">
                                             <span class="input-group-text"
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                            </div>
+                                            <input v-model="Popup.Fields[col.field]" type="text" class="form-control"
+                                                   :placeholder="col.editDesc" aria-label="Имя пользователя"
+                                                   :aria-describedby="'basic-addon'+col.label">
                                         </div>
-                                        <input v-model="Popup.Fields[col.field]" type="text" class="form-control"
-                                               :placeholder="col.editDesc" aria-label="Имя пользователя"
-                                               :aria-describedby="'basic-addon'+col.label">
+                                        <div v-else class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
+                                                  :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                            <select v-model="Popup.Fields[col.field]" class="form-control">
+                                                <option v-for="item in col.selectResults" :value="item">
+                                                    {{col.selectRepresentAs(item)}}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
 
                             <div class="datatable-modal-footer">
-                                <button v-show="opts.canRemove" class="btn btn-dark datatable-popup-remove" @click="removePopup()">
+                                <button v-show="opts.canRemove" class="btn btn-dark datatable-popup-remove"
+                                        @click="removePopup()">
                                     Удалить
                                 </button>
                                 <button class="btn btn-light" style="text-align: center"
@@ -301,6 +315,22 @@
        * Показать попап с добавлением данных
        */
       popupAdd: function () {
+
+        // Добавляем поля json в массив
+        /*
+        let Fields = {};
+        for (let column in this.Table.columns) {
+          if(column.type !== 'json')
+            Fields[column] = null;
+          else {
+            Fields[column]={};
+            for (let key in column.schema) {
+              Fields[column][key]="";
+            }
+          }
+        }
+         */
+
         // Указываем при добавлении, что нет изменяемых полей - это добавление
         Vue.set(this.Popup, 'editID', "");
         Vue.set(this.Popup, 'editField', "");
@@ -354,10 +384,10 @@
       removePopup: function () {
 
         // Запрашиваем подтверждение
-        if(!window.confirm("ВЫ УВЕРЕНЫ, ЧТО ХОТИТЕ УДАЛИТЬ ЗАПИСЬ: " + JSON.stringify(this.Popup.Fields) + '?')) return;
+        if (!window.confirm("ВЫ УВЕРЕНЫ, ЧТО ХОТИТЕ УДАЛИТЬ ЗАПИСЬ: " + JSON.stringify(this.Popup.Fields) + '?')) return;
 
         // Удаляем
-        this.REST.remove(this.Table.name, this.Popup.editID).then(res=>{
+        this.REST.remove(this.Table.name, this.Popup.editID).then(res => {
           debugger;
         })
 
@@ -387,6 +417,8 @@
 
           Vue.set(that.Table, 'name', that.selectedtable);
           Vue.set(that.Table, 'schema', (res.data.find(table => table.name === that.selectedtable)).fields);
+          Vue.set(that, 'Tables', res.data);
+
 
           // Преобразуем колонки в формат компонента
           // Типы:
@@ -401,6 +433,15 @@
               filterRange: {from: '', to: ''},
               hasFilter: false,
               type: col.type === "integer" ? 'number' : 'text',
+              linkedto: col.linkedto,
+              selectResults: [],
+              /**
+               * Загружать ли данные от foreign keys, т.к. данных может быть много, по-умолчанию выключено
+               */
+              isLoadKeys: false,
+              selectRepresentAs: function (item) {
+                return item
+              },
               editName: col.name,
               editDesc: col.comment
             }
@@ -468,8 +509,18 @@
       })
       .then(res => {
 
-        // Загружаем записи в таблицу
-        //Vue.set(that.Table, 'rows', res.data);
+        // Загружаем данные зависимых таблиц
+        let allPromises = [];
+        for (let column of that.Table.columns) {
+          if (column.linkedto !== null && column.isLoadKeys === true) {
+            allPromises.push(new Promise((resolve, reject) => {
+              that.REST.get(column.linkedto.table).then((res) => {
+                Vue.set(column, 'selectResults', res.data);
+                resolve();
+              })
+            }))
+          }
+        }
 
       });
 
