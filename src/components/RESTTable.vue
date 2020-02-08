@@ -498,11 +498,11 @@
             if (cols[i].representedAs === undefined && this.opts.canEdit === true) {
               if (i === 0)
                 cols[i].representedAs = function (row) {
-                  return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + cols[i].field + '\',\'' + row[cols[i].field] + '\')">' + row[cols[i].field] + '</a>'
+                  return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\')">' + row[cols[i].field] + '</a>'
                 }
               else
                 cols[i].representedAs = function (row) {
-                  return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + cols[0].field + '\',\'' + row[cols[0].field] + '\')">' + row[cols[i].field] + '</a>'
+                  return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\')">' + row[cols[i].field] + '</a>'
                 }
               cols[i].interpolate = true;
             }
