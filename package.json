@@ -1,7 +1,14 @@
 {
   "name": "flamecrud",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "Vue CRUD component for Yii2-based REST services (like https://github.com/FlameArt/auto-rest-template-yii2)",
+  "author": "FlameArt",
+  "license": "MIT",
+  "homepage": "https://github.com/FlameArt/vuecrud",
+  "repository": {
+    "type": "git",
+    "url": "github:FlameArt/vuecrud.git"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"

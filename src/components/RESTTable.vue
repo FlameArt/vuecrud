@@ -473,7 +473,7 @@
 
           // Применяем к формату колонок коллбек, для их кастомизации
           if (typeof that.columnsupdated === 'function') {
-            let changedCols = that.columnsupdated(cols)
+            let changedCols = that.columnsupdated(cols, that)
             // Если забыли вернуть значение, ничего, можно пользоваться просто set и delete и всё будет ок
             if (changedCols !== undefined && Array.isArray(changedCols))
               cols = changedCols;
