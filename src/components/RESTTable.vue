@@ -371,7 +371,7 @@
         // В зависимости от типа: нужно сохранить или изменить запись
 
         // Добавление
-        if (this.editField === "") {
+        if (this.Popup.editField === "") {
           this.REST.create(this.Table.name, this.Popup.Fields);
         }
         // Изменение

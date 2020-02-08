@@ -11,8 +11,7 @@
   },
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "publish": "npm version patch"
+    "build": "vue-cli-service build"
   },
   "main": "Component.js",
   "dependencies": {
