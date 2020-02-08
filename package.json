@@ -11,8 +11,10 @@
   },
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "publish": "npm version patch"
   },
+
   "main": "Component.js",
   "dependencies": {
     "core-js": "^3.6.4",
@@ -22,6 +24,7 @@
     "vuejs-datatable": "^2.0.0-alpha.7",
     "vuex": "^3.1.2"
   },
+
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.2",
     "@vue/cli-service": "^4.1.2",
