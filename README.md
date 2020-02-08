@@ -88,6 +88,15 @@ Vue.use(vuecrud);
         // Функция, которая приводит формат поля связанного списка в select к кастомному
         selectRepresentAs: column => 'Foreign key ' + column.id
         
+        // Показывать поле в таблице
+        isShow: true,
+        
+        // Показывать поле при добавлении\редактировании
+        isShowOnPopup: true,
+        
+        // Поле разрешено редактировать
+        // Если isEdit=false и isShowOnPopup=true, оно будет выключено, но показано
+        isEdit: true,
         
     }
     

@@ -11,8 +11,9 @@ export default {
   data: function () {
     return {
       columnsupdated: function (cols) {
+        cols.delete('id');
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', editName: 'TRUST INFO', editDesc: 'Инфа'});
-        cols.delete('name');
+        cols.set('name', {isEdit: false});
         cols.set('test', {type: 'json', schema: {
           name: "aaa",
             index: "aaab"

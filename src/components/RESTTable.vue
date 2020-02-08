@@ -53,7 +53,7 @@
 
                             <div class="datatable-modal-body">
                                 <form>
-                                    <div v-for="col in Table.columns">
+                                    <div v-for="col in Table.columns" v-if="col.isShowOnPopup || col.isShow || col.isEdit">
                                         <div v-if="col.linkedto===null || col.isLoadKeys===false"
                                              class="input-group mb-3">
                                             <div class="input-group-prepend">
@@ -63,14 +63,14 @@
                                             </div>
                                             <input v-model="Popup.Fields[col.field]" type="text" class="form-control"
                                                    :placeholder="col.editDesc" aria-label="Имя пользователя"
-                                                   :aria-describedby="'basic-addon'+col.label">
+                                                   :aria-describedby="'basic-addon'+col.label" :readonly="!col.isEdit && Popup.editField!==''">
                                         </div>
                                         <div v-else class="input-group-prepend">
                                             <span class="input-group-text"
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{col.editName}}</span>
                                             <select v-model="Popup.Fields[col.field]" class="form-control">
-                                                <option v-for="item in col.selectResults" :value="item[col.linkedto.field]">
+                                                <option v-for="item in col.selectResults" :value="item[col.linkedto.field]" :disabled="!col.isEdit && Popup.editField!==''">
                                                     {{col.selectRepresentAs(item)}}
                                                 </option>
                                             </select>
@@ -443,7 +443,12 @@
                 return item
               },
               editName: col.name,
-              editDesc: col.comment
+              editDesc: col.comment,
+
+              isShow: true,
+              isEdit: true,
+              isShowOnPopup: true
+
             }
           });
 
@@ -466,7 +471,15 @@
                 console.error("VUE Datatable Delete Column: Object not found - " + FieldName);
                 return this;
               }
+
+
+              // Помечаем непоказываемыми
+              this[findedObjIndex].isShow = false;
+              this[findedObjIndex].isEdit = false;
+              this[findedObjIndex].isShowOnPopup = false;
+
               this.splice(findedObjIndex, 1);
+
               return this;
             }
           });
