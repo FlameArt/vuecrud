@@ -514,7 +514,7 @@
         for (let column of that.Table.columns) {
           if (column.linkedto !== null && column.isLoadKeys === true) {
             allPromises.push(new Promise((resolve, reject) => {
-              that.REST.get(column.linkedto.table).then((res) => {
+              that.REST.get(column.linkedto.table, null, null, null, null, 1, 99999).then((res) => {
                 Vue.set(column, 'selectResults', res.data);
                 resolve();
               })
