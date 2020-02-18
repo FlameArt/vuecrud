@@ -341,7 +341,9 @@
       /**
        * Показать попап с изменением данных
        */
-      popupEdit: function (fieldName, fieldID) {
+      popupEdit: function (fieldName, fieldID, fieldType) {
+
+        if(fieldType==='integer') fieldID=parseInt(fieldID);
 
         // Указываем изменяемые поля
         Vue.set(this.Popup, 'editID', fieldID);
@@ -498,11 +500,11 @@
             if (cols[i].representedAs === undefined && this.opts.canEdit === true) {
               if (i === 0)
                 cols[i].representedAs = function (row) {
-                  return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\')">' + row[cols[i].field] + '</a>'
+                  return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type+'\')">' + row[cols[i].field] + '</a>'
                 }
               else
                 cols[i].representedAs = function (row) {
-                  return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\')">' + row[cols[i].field] + '</a>'
+                  return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name]  + '\',\'' + that.Table.schema[0].type+'\')">' + row[cols[i].field] + '</a>'
                 }
               cols[i].interpolate = true;
             }
