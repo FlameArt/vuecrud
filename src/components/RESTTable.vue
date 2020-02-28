@@ -351,7 +351,7 @@
         Vue.set(this.Popup, 'buttonSaveName', "Сохранить");
 
         // Находим редактируемую запись
-        let item = this.Table.rows.find(row => {let testID = row[fieldName]; if(fieldType==='integer') testID=parseInt(testID); return row[fieldName] === fieldID});
+        let item = this.Table.rows.find(row => {let testID = row[fieldName]; if(fieldType==='integer') testID=parseInt(testID); return testID === fieldID});
         if (item === undefined) {
           console.error('Не найдена обновляемая запись: ' + fieldName + " = " + fieldID);
           return;
