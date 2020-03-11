@@ -70,6 +70,9 @@
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{col.editName}}</span>
                                             <select v-model="Popup.Fields[col.field]" class="form-control">
+                                                <option :value="null" :disabled="!col.isEdit && Popup.editField!==''">
+
+                                                </option>
                                                 <option v-for="item in col.selectResults" :value="item[col.linkedto.field]" :disabled="!col.isEdit && Popup.editField!==''">
                                                     {{col.selectRepresentAs(item)}}
                                                 </option>
