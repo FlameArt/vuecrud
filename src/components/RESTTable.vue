@@ -53,7 +53,7 @@
 
                             <div class="datatable-modal-body">
                                 <form>
-                                    <div v-for="col in Table.columns" v-if="col.isShowOnPopup || col.isShow || col.isEdit">
+                                    <div v-for="col in Table.columns" v-if="col.isShowOnPopup || col.isEdit">
                                         <div v-if="col.linkedto===null || col.isLoadKeys===false"
                                              class="input-group mb-3">
                                             <div class="input-group-prepend">
