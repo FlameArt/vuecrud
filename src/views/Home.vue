@@ -11,9 +11,9 @@ export default {
   data: function () {
     return {
       columnsupdated: function (cols) {
-        cols.delete('id', {isShowOnPopup: false,});
+        cols.delete('id', {isShowOnPopup: false});
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: false, isEdit: false});
-        cols.set('name', {isEdit: false});
+        cols.set('name', {isEdit: false, popupType: 'text'});
         cols.set('test', {type: 'json', schema: {
           name: "aaa",
             index: "aaab"
