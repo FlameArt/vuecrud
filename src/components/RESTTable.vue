@@ -2,7 +2,7 @@
 
     <div class="col-xs-12 table-responsive" flamecrud>
 
-        <div class="btn btn-primary" style="cursor: pointer;" v-show="opts.canAdd===true" @click="popupAdd()">
+        <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px" v-show="opts.canAdd===true" @click="popupAdd()">
             + Добавить
         </div>
 
