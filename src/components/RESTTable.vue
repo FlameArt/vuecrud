@@ -53,7 +53,7 @@
 
                             <div class="datatable-modal-body">
                                 <form>
-                                    <div v-for="col in Table.columns" v-if="col.isShowOnPopup || col.isEdit">
+                                    <div v-for="col in Table.schema" v-if="col.isShowOnPopup || col.isEdit">
                                         <div v-if="col.linkedto===null || col.isLoadKeys===false"
                                              class="input-group mb-3">
                                             <div class="input-group-prepend">
@@ -308,8 +308,7 @@
             totalRowCount: SuperTHAT.Pager.Total,
           }
 
-        }
-
+        },
       }
     },
     methods: {
@@ -354,7 +353,10 @@
         Vue.set(this.Popup, 'buttonSaveName', "Сохранить");
 
         // Находим редактируемую запись
-        let item = this.Table.rows.find(row => {let testID = row[fieldName]; return testID === fieldID || parseInt(testID)===fieldID});
+        let item = this.Table.rows.find(row => {
+            let testID = row[fieldName];
+            return testID.toString() === fieldID.toString()
+        });
         if (item === undefined) {
           console.error('Не найдена обновляемая запись: ' + fieldName + " = " + fieldID);
           return;
@@ -431,7 +433,7 @@
           // number - поиск через от - до
           // fixed - точное совпадение
           let cols = that.Table.schema.map(col => {
-            return {
+            return Object.assign(col,{
               label: col.comment,
               field: col.name,
               filter: '',
@@ -454,7 +456,7 @@
               isEdit: true,
               isShowOnPopup: true
 
-            }
+            })
           });
 
           // Добавляем хелперы в колонки, которыми можно быстро изменить состояние
@@ -470,7 +472,8 @@
             }
           });
           Object.defineProperty(cols, 'delete', {
-            configurable: true, enumerable: false, value: function (FieldName) {
+            configurable: true, enumerable: false, value: function (FieldName, Params) {
+
               let findedObjIndex = this.findIndex(res => res.field === FieldName);
               if (findedObjIndex === -1) {
                 console.error("VUE Datatable Delete Column: Object not found - " + FieldName);
@@ -479,11 +482,13 @@
 
 
               // Помечаем непоказываемыми
-              this[findedObjIndex].isShow = false;
-              this[findedObjIndex].isEdit = false;
-              this[findedObjIndex].isShowOnPopup = false;
+              //this[findedObjIndex].isShow = false;
+              //this[findedObjIndex].isEdit = false;
+              //this[findedObjIndex].isShowOnPopup = false;
+                  // Скрепляем с параметрами
+                  Object.assign(this[findedObjIndex], Params);
 
-              this.splice(findedObjIndex, 1);
+                  this.splice(findedObjIndex, 1);
 
               return this;
             }
