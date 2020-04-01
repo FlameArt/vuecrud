@@ -448,7 +448,7 @@
                         // number - поиск через от - до
                         // fixed - точное совпадение
                         let cols = that.Table.schema.map(col => {
-                            return Object.assign(col, {
+                            Object.assign(col, {
 
                                 label: col.comment,
                                 field: col.name,
@@ -483,7 +483,8 @@
                                 isEdit: true,
                                 isShowOnPopup: true
 
-                            })
+                            });
+                            return col;
                         });
 
                         // Добавляем хелперы в колонки, которыми можно быстро изменить состояние
@@ -495,6 +496,8 @@
                                     return this;
                                 }
                                 Object.assign(findedObj, Params);
+                                // Уточняем название в попапе, если существует кастомный label
+                                if(findedObj.editName === findedObj.name && findedObj.label!==findedObj.comment) findedObj.editName = findedObj.label;
                                 return this;
                             }
                         });
@@ -514,6 +517,10 @@
                                 //this[findedObjIndex].isShowOnPopup = false;
                                 // Скрепляем с параметрами
                                 Object.assign(this[findedObjIndex], Params);
+
+                                // Уточняем название в попапе, если существует кастомный label
+                                //debugger;
+                                if(this[findedObjIndex].editName === this[findedObjIndex].name && this[findedObjIndex].label!==this[findedObjIndex].comment) this[findedObjIndex].editName = this[findedObjIndex].label;
 
                                 this.splice(findedObjIndex, 1);
 
