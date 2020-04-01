@@ -398,7 +398,19 @@
                 }
                 // Изменение
                 else {
-                    this.REST.edit(this.Table.name, this.Popup.editID, this.Popup.Fields);
+
+                    // Фильтруем для обновления только изменённые позиции и те, которые предназначены для редактирования
+                    let fields = {};
+                    for (let name in this.Popup.Fields) {
+                        let findedField = this.Table.schema.find(r=>r.field === name);
+                        if(findedField === null)
+                            debugger;
+                        if(findedField.isEdit!==true) continue;
+                        fields[name]=this.Popup.Fields[name];
+                    }
+
+                    this.REST.edit(this.Table.name, this.Popup.editID, fields);
+
                 }
                 Vue.set(this.Popup, 'isPopupShowed', false);
             },
