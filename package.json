@@ -1,6 +1,6 @@
 {
   "name": "flamecrud",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Vue CRUD component for Yii2-based REST services (like https://github.com/FlameArt/auto-rest-template-yii2)",
   "author": "FlameArt",
   "license": "MIT",
@@ -18,6 +18,7 @@
     "core-js": "^3.6.4",
     "flamerest": "github:FlameArt/rest",
     "vue": "^2.6.11",
+    "vue-avatar-editor-improved": "^1.0.5",
     "vue-router": "^3.1.6",
     "vuejs-datatable": "^2.0.0-alpha.7",
     "vuex": "^3.1.3"

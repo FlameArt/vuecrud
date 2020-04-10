@@ -12,7 +12,8 @@ export default {
     return {
       columnsupdated: function (cols) {
         cols.delete('id', {isShowOnPopup: false, label: "LOL", editName: "LLLLAL"});
-        cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});
+        cols.delete('image', {isShowOnPopup: true, popupType: 'image'});
+        cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', hasFilter: true, editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});
         cols.set('name', {isEdit: false, popupType: 'text'});
         cols.set('test', {type: 'json', schema: {
           name: "aaa",

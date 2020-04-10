@@ -16,7 +16,7 @@
 
                 <!-- Если это текстовое поле -->
                 <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control"
-                       v-model="col.filter" :placeholder="col.label" aria-label="Username"
+                       v-model="col.filter" :keyup="getData" :placeholder="col.label" aria-label="Username"
                        :aria-describedby="'basic-addon'+col.label">
 
                 <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.from"
@@ -58,7 +58,7 @@
                                         <div v-if="col.linkedto===null || col.isLoadKeys===false">
                                             <div class="input-group mb-3" v-if="col.popupType==='string'">
                                                 <div class="input-group-prepend">
-                                            <span class="input-group-text"
+                                                <span class="input-group-text"
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{col.editName}}</span>
                                                 </div>
@@ -77,6 +77,25 @@
                                                           :readonly="!col.isEdit && Popup.editField!==''"
                                                 ></textarea>
                                             </div>
+
+                                            <div class="input-group mb-3"  v-if="col.popupType==='image'">
+
+                                                <div class="input-group-prepend">
+                                                <span class="input-group-text"
+                                                      style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
+                                                      :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                                </div>
+
+                                                <label :for="'basic-addon-file'+col.label" class="datatable-custom-file-upload"
+                                                       :aria-describedby="'basic-addon'+col.label"
+                                                >
+                                                    <img class="data-table-popup-image" :src="Popup.Fields[col.field]" />
+                                                    <span v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">📁</span>
+                                                </label>
+
+                                                <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field style="display: none;" @change="fileSelected($event,col.field)"/>
+                                            </div>
+
                                         </div>
                                         <div v-else class="input-group-prepend">
                                             <span class="input-group-text"
@@ -128,6 +147,9 @@
 
     // Импортим REST
     import FLAMEREST from "flamerest";
+
+    // Редачер аватаров
+    import {VueAvatar} from 'vue-avatar-editor-improved';
 
     // That, который устанавливается после инициализации Vue шаблона
     let SuperTHAT = null;
@@ -259,6 +281,12 @@
                  */
                 async getData({sortBy, sortDir, perPage, page}) {
 
+                    // Если ещё не было получено колонок (схемы КРУД), то не делаем первый запрос до получения схемы
+                    if(SuperTHAT.Table.columns.length===0) return {
+                        rows: [],
+                        totalRowCount: 0,
+                    };
+
                     // Формируем запрос
                     let request = {
                         tablename: SuperTHAT.Table.name,
@@ -332,6 +360,11 @@
              * Показать попап с добавлением данных
              */
             popupAdd: function () {
+
+                // Очищаем попап от старых значений
+                Vue.set(this.Popup, 'Fields', {});
+                // и снимаем выделенные файлы
+                document.querySelectorAll('[vuedatatable-file-field]').forEach(node=> node.value="");
 
                 // Добавляем поля json в массив
                 /*
@@ -428,7 +461,36 @@
                 // Закрываем окно
                 Vue.set(this.Popup, 'isPopupShowed', false);
 
-            }
+            },
+
+            /**
+             * Файл выбран
+             */
+            fileSelected: function(event, Field) {
+
+                let that = this;
+
+                let tgt = event.target || window.event.srcElement,
+                    files = tgt.files;
+
+                // FileReader support
+                if (FileReader && files && files.length) {
+                    var fr = new FileReader();
+                    fr.onload = function () {
+                        Vue.set(that.Popup.Fields, Field, fr.result)
+                        debugger;
+
+                    };
+                    fr.readAsDataURL(files[0]);
+                }
+
+                // Not supported
+                else {
+                    // fallback -- perhaps submit the input to an iframe and temporarily store
+                    // them on the server until the user's session ends.
+                }
+
+            },
 
         },
 
@@ -653,6 +715,23 @@
     .datatable-modal-default-button {
         float: right;
     }
+
+    .datatable-custom-file-upload {
+        border: 1px solid #ccc;
+        display: block;
+        padding: 0;
+        cursor: pointer;
+        margin: 0 auto;
+        min-width: 50%;
+    }
+
+    .data-table-popup-image {
+        max-width: 150px;
+        max-height: 150px;
+        margin: 0 auto;
+    }
+
+
 
     /*
      * The following styles are auto-applied to elements with

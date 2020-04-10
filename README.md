@@ -77,6 +77,8 @@ Vue.use(vuecrud);
         // Тип элемента в попапе
         // string - обычная строка или селектор строк
         // text - text area
+        // file - file select
+        // image - select image, crop & resize
         popupType: 'string',
         
         // Связи с другими таблицами
