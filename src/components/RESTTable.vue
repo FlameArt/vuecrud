@@ -478,8 +478,6 @@
                     var fr = new FileReader();
                     fr.onload = function () {
                         Vue.set(that.Popup.Fields, Field, fr.result)
-                        debugger;
-
                     };
                     fr.readAsDataURL(files[0]);
                 }
