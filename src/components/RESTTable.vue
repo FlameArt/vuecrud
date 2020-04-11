@@ -2,6 +2,14 @@
 
     <div class="col-xs-12 table-responsive" flamecrud>
 
+
+        <div style="z-index: 999999999" id="PopupAvatarPopup" v-show="Popup.Avatar.isEnabled">
+            <vue-avatar :width="Popup.Avatar.width" :height="Popup.Avatar.height" :scale="Popup.Avatar.scale"
+                        :borderRadius="Popup.Avatar.borderRadius" ref="vueavatar"
+                        @vue-avatar-editor:image-ready="onImageReady" id="PopupAvatar">
+            </vue-avatar>
+        </div>
+
         <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px" v-show="opts.canAdd===true"
              @click="popupAdd()">
             + Добавить
@@ -58,6 +66,8 @@
                                 <form>
                                     <div v-for="col in Table.schema" v-if="col.isShowOnPopup || col.isEdit">
                                         <div v-if="col.linkedto===null || col.isLoadKeys===false">
+
+                                            <!-- Строки -->
                                             <div class="input-group mb-3" v-if="col.popupType==='string'">
                                                 <div class="input-group-prepend">
                                                 <span class="input-group-text"
@@ -70,6 +80,8 @@
                                                        :aria-describedby="'basic-addon'+col.label"
                                                        :readonly="!col.isEdit && Popup.editField!==''">
                                             </div>
+
+                                            <!-- textarea -->
                                             <div class="form-group"  v-if="col.popupType==='text'">
                                                 <label for="exampleFormControlTextarea1">{{col.editDesc}}</label>
                                                 <textarea class="form-control"
@@ -80,6 +92,7 @@
                                                 ></textarea>
                                             </div>
 
+                                            <!-- Картинки -->
                                             <div class="input-group mb-3"  v-if="col.popupType==='image'">
 
                                                 <div class="input-group-prepend">
@@ -88,21 +101,37 @@
                                                       :id="'basic-addon'+col.label">{{col.editName}}</span>
                                                 </div>
 
-                                                <label :for="'basic-addon-file'+col.label" class="datatable-custom-file-upload"
+                                                <label v-show="Popup.Avatar.isEnabled===false" :for="'basic-addon-file'+col.label" class="datatable-custom-file-upload"
                                                        :aria-describedby="'basic-addon'+col.label"
                                                 >
                                                     <img class="data-table-popup-image" :src="Popup.Fields[col.field]" />
-                                                    <span v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">📁</span>
+                                                    <div style="margin: auto" v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">📁</div>
                                                 </label>
+
+
+                                                <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled" :datatable-id="'basic-addon-file-avatar-'+col.label">
+                                                    <div class="datatable-popup-avatar-space-infopanel">
+                                                        <div>Размер</div>
+                                                        <input type="range" min=1 max=3 step=0.02 v-model="Popup.Avatar.scale" />
+                                                        <div v-show="Popup.Avatar.isEnabled" class="btn btn-primary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, true, false)">Сохранить</div>
+                                                        <div v-show="Popup.Avatar.isEnabled" class="btn btn-secondary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, false)">Отменить</div>
+                                                    </div>
+                                                </div>
+
+                                                <div v-show="Popup.Avatar.isEnabled===false" style="margin-top: auto;" class="btn btn-primary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">Обрезать</div>
 
                                                 <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field style="display: none;" @change="fileSelected($event,col.field)"/>
                                             </div>
 
                                         </div>
-                                        <div v-else class="input-group-prepend">
+
+                                        <!-- Селекторы -->
+                                        <div v-else class="input-group mb-3">
+                                            <div class="input-group-prepend">
                                             <span class="input-group-text"
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                            </div>
                                             <select v-model="Popup.Fields[col.field]" class="form-control">
                                                 <option :value="null" :disabled="!col.isEdit && Popup.editField!==''">
 
@@ -270,6 +299,19 @@
                      * Модели для каждого поля в попапе
                      */
                     Fields: {},
+
+                    /**
+                     * Параметры изменения картинки
+                     */
+                    Avatar: {
+                        rotation: 0,
+                        scale: 1,
+                        borderRadius: 200,
+                        width: 320,
+                        height: 320,
+                        isEnabled: false
+                    },
+
 
                 },
 
@@ -481,11 +523,26 @@
 
                 // FileReader support
                 if (FileReader && files && files.length) {
+
                     var fr = new FileReader();
                     fr.onload = function () {
                         Vue.set(that.Popup.Fields, Field, fr.result)
                     };
                     fr.readAsDataURL(files[0]);
+
+                    // Устанавливаем размеры аватара
+                    this.Popup.Avatar.scale = 1;
+                    this.Popup.Avatar.rotation = 0;
+                    this.Popup.Avatar.borderRadius = 200;
+
+                    // Добавляем выбранный файл в попап изменения фотки
+                    let element = document.querySelector('#PopupAvatar>input[type=file]');
+                    element.files=files;
+
+                    var evt = document.createEvent("HTMLEvents");
+                    evt.initEvent("change", false, true);
+                    element.dispatchEvent(evt);
+
                 }
 
                 // Not supported
@@ -496,11 +553,42 @@
 
             },
 
+            saveClicked () {
+                var img = this.$refs.vueavatar.getImageScaled()
+                this.$refs.image.src = img.toDataURL()
+            },
+            onImageReady () {
+            },
+
+            showAvatarPopup(Field, AriaID, isSave = false, isOpenPopup = false) {
+
+                if(!isSave) {
+                    let tLabel = document.querySelector('div[datatable-id="' + AriaID + '"]');
+                    tLabel.appendChild(document.querySelector('#PopupAvatarPopup'));
+                }
+                else {
+                    let img = this.$refs.vueavatar.getImageScaled().toDataURL();
+                    Vue.set(this.Popup.Fields, Field, img);
+                }
+
+                if(isOpenPopup) {
+                    Vue.set(this.Popup.Avatar, 'isEnabled', true);
+                }
+                else
+                    Vue.set(this.Popup.Avatar, 'isEnabled', false);
+
+            },
+
+
             // Обновить таблицу
             updateTable: function() {
                 this.$children[0].processRows();
             }
 
+        },
+
+        components: {
+            VueAvatar,
         },
 
         mounted() {
@@ -669,7 +757,7 @@
     }
 </script>
 
-<style>
+<style lang="scss">
 
     .datatable_FilterHeader:first-child {
         background-color: rgba(236, 236, 236, 0.55);
@@ -730,7 +818,7 @@
         display: block;
         padding: 0;
         cursor: pointer;
-        margin: 0 auto;
+        margin: auto;
         min-width: 50%;
     }
 
@@ -777,6 +865,25 @@
 
     .datatable-popup-save {
         float: right;
+    }
+
+    #PopupAvatarPopup {
+    }
+
+    .datatable-popup-avatar-space {
+        display: flex;
+        flex-direction: row;
+        width: 50%;
+    }
+
+    .datatable-popup-avatar-space-infopanel {
+        margin: 20px 30px;
+        .btn-primary {
+            margin-top: 170px;
+        }
+        .btn-secondary {
+            margin-top: 20px;
+        }
     }
 
 
