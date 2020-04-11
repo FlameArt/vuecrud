@@ -16,12 +16,14 @@
 
                 <!-- Если это текстовое поле -->
                 <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control"
-                       v-model="col.filter" :keyup="getData" :placeholder="col.label" aria-label="Username"
+                       v-model="col.filter" @keyup="updateTable()" :placeholder="col.label" aria-label="Username"
                        :aria-describedby="'basic-addon'+col.label">
 
                 <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.from"
+                       @keyup="updateTable()"
                        :placeholder="'от'" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
                 <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.to"
+                       @keyup="updateTable()"
                        :placeholder="'до '" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
 
 
@@ -158,7 +160,7 @@
     Vue.use(VuejsDatatableFactory);
 
     // Настраиваем дизайн таблицы
-    VuejsDatatableFactory.useDefaultType(false)
+    let thatTable = VuejsDatatableFactory.useDefaultType(false)
         .registerTableType('datatable', tableType => tableType
             .mergeSettings({
                 table: {
@@ -424,10 +426,14 @@
             savePopup: function (ev) {
 
                 // В зависимости от типа: нужно сохранить или изменить запись
+                let that = this;
 
                 // Добавление
                 if (this.Popup.editField === "") {
-                    this.REST.create(this.Table.name, this.Popup.Fields);
+                    this.REST.create(this.Table.name, this.Popup.Fields).then(res=>{
+                        that.Table.rows.unshift(res.data);
+                        alert('ok');
+                    })
                 }
                 // Изменение
                 else {
@@ -489,6 +495,11 @@
                 }
 
             },
+
+            // Обновить таблицу
+            updateTable: function() {
+                this.$children[0].processRows();
+            }
 
         },
 
