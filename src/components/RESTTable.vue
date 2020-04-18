@@ -582,7 +582,12 @@
 
             // Обновить таблицу
             updateTable: function() {
-                this.$children[0].processRows();
+                for (let ThisVueInstance of this.$children) {
+                    if(typeof ThisVueInstance.processRows === 'function') {
+                        ThisVueInstance.processRows();
+                        break;
+                    }
+                }
             }
 
         },
