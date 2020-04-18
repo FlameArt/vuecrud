@@ -86,7 +86,7 @@
                                                 <label for="exampleFormControlTextarea1">{{col.editDesc}}</label>
                                                 <textarea class="form-control"
                                                           id="exampleFormControlTextarea1"
-                                                          rows="6"
+                                                          :rows="col.popupTextRows"
                                                           v-model="Popup.Fields[col.field]"
                                                           :readonly="!col.isEdit && Popup.editField!==''"
                                                 ></textarea>
@@ -642,6 +642,9 @@
                                 // string - обычная строка или селектор строк
                                 // text - text area
                                 popupType: 'string',
+
+                                // Количество строк текстового поля
+                                popupTextRows: 6,
 
                                 linkedto: col.linkedto,
                                 selectResults: [],
