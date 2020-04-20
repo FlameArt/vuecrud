@@ -474,7 +474,6 @@
                 if (this.Popup.editField === "") {
                     this.REST.create(this.Table.name, this.Popup.Fields).then(res=>{
                         that.Table.rows.unshift(res.data);
-                        alert('ok');
                     })
                 }
                 // Изменение
