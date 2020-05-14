@@ -15,7 +15,7 @@ export default {
         cols.delete('image', {isShowOnPopup: true, popupType: 'image'});
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', hasFilter: true, editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});
         cols.set('name', {isEdit: false, popupType: 'text', popupTextRows: 15});
-        cols.set('name', {isEdit: true, popupType: 'button', buttonFunction: row=> alert(row.id) });
+        cols.set('name', {isEdit: true, popupType: 'button', buttonFunction: (row,rest)=> alert(rest) });
         cols.set('test', {type: 'json', schema: {
           name: "aaa",
             index: "aaab"

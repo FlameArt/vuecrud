@@ -99,7 +99,7 @@
                                                       style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                       :id="'basic-addon'+col.label">{{col.editName}}</span>
                                                 </div>
-                                                <button type="button" style="margin-left: auto" class="form-control btn btn-light" @click="col.buttonFunction(Popup.Fields)">{{col.label}}</button>
+                                                <button type="button" style="margin-left: auto" class="form-control btn btn-light" @click="col.buttonFunction(Popup.Fields, REST)">{{col.label}}</button>
                                             </div>
 
 
