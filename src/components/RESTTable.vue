@@ -92,6 +92,17 @@
                                                 ></textarea>
                                             </div>
 
+                                            <!-- button -->
+                                            <div class="input-group mb-3" v-if="col.popupType==='button'">
+                                                <div class="input-group-prepend">
+                                                <span class="input-group-text"
+                                                      style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
+                                                      :id="'basic-addon'+col.label">{{col.editName}}</span>
+                                                </div>
+                                                <button type="button" style="margin-left: auto" class="form-control btn btn-light" @click="col.buttonFunction(Popup.Fields)">{{col.label}}</button>
+                                            </div>
+
+
                                             <!-- Картинки -->
                                             <div class="input-group mb-3"  v-if="col.popupType==='image'">
 
@@ -640,7 +651,11 @@
                                 // Тип элемента в попапе
                                 // string - обычная строка или селектор строк
                                 // text - text area
+                                // button - кнопка
                                 popupType: 'string',
+
+                                // Функция кнопки
+                                buttonFunction: function (row) {},
 
                                 // Количество строк текстового поля
                                 popupTextRows: 6,
