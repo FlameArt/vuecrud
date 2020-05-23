@@ -12,7 +12,7 @@ export default {
     return {
       columnsupdated: function (cols) {
         cols.delete('id', {isShowOnPopup: false, label: "LOL", editName: "LLLLAL"});
-        cols.delete('image', {isShowOnPopup: true, popupType: 'image'});
+        cols.delete('image', {isShowOnPopup: true, popupType: 'image', isLoadToTable: false});
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', hasFilter: true, editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});
         cols.set('name', {isEdit: false, popupType: 'text', popupTextRows: 15});
         cols.set('name', {isEdit: true, popupType: 'button', buttonFunction: (row,rest)=> alert(rest) });

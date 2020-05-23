@@ -347,7 +347,7 @@
                         tablename: SuperTHAT.Table.name,
                         where: null,
                         expand: null,
-                        fields: null,
+                        fields: [],
                         sort: null,
                         page: page,
                         perPage: perPage
@@ -380,6 +380,11 @@
                     if (Object.keys(TotalWhere).length > 0)
                         request.where = TotalWhere;
 
+                    // Добавляем поля [из чистой схемы, чтобы все поля были добавлены]
+                    for(let column of SuperTHAT.Table.schema) {
+                        if(column.isLoadToTable)
+                            request.fields.push(column.field);
+                    }
 
                     // Применяем к запросу коллбек, если он прописан
                     if (typeof SuperTHAT.beforeGetRows === 'function')
@@ -446,7 +451,9 @@
             /**
              * Показать попап с изменением данных
              */
-            popupEdit: function (fieldName, fieldID, fieldType) {
+            popupEdit: function (fieldName, fieldID, fieldType, isLoaded = false) {
+
+                let that = this;
 
                 if (fieldType === 'integer') fieldID = parseInt(fieldID);
 
@@ -462,6 +469,26 @@
                 });
                 if (item === undefined) {
                     console.error('Не найдена обновляемая запись: ' + fieldName + " = " + fieldID);
+                    return;
+                }
+
+                // Если попап надо прогрузить из базы (есть поля)
+                let loadFields = [];
+                for(let column of SuperTHAT.Table.schema) {
+                    if(column.isLoadToTable === false && column.isLoadToPopup === true) loadFields.push(column.field);
+                }
+
+                // Есть непрогруженные поля - делаем REST-запрос
+                // После запроса он снова вызовет
+                if(loadFields.length>0 && isLoaded === false) {
+                    let where = {};
+                    where[fieldName] = fieldID;
+                    this.REST.get(that.Table.name, where, null, loadFields).then(res=>{
+                        that.popupEdit(fieldName, fieldID, fieldType, true);
+                        for(let field in res.data[0])
+                            Vue.set(item, field, res.data[0][field]);
+                    });
+                    // ждём прогрузки а это окно выведется по её окончании (будет ещё один запрос popupEdit)
                     return;
                 }
 
@@ -641,6 +668,10 @@
                                 filter: '',
                                 filterRange: {from: '', to: ''},
                                 hasFilter: false,
+
+                                // Ленивая загрузка полей базы или вообще их не загрузка для экономии траффика
+                                isLoadToTable: true,
+                                isLoadToPopup: true,
 
                                 // Тип фильтрации для поля, выясняется автоматически на основе типа записи, но может быть переопределён
                                 // text - поиск через частичное совпадение (LIKE)

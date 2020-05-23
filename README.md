@@ -81,6 +81,12 @@ Vue.use(vuecrud);
         // image - select image, crop & resize
         popupType: 'string',
         
+        // Загружать поле из REST в таблицу (мгновенная загрузка)
+        isLoadToTable: true,
+        // Загружать поле из REST в попап (ленивая загрузка, если isLoadToTable=false)
+        // если isLoadToTable=false и isLoadToPopup=false, поле вообще никогда загружено из базы не будет
+        isLoadToPopup: true,
+        
         // Связи с другими таблицами
         
         // Справочно: к какой таблице и полю текущее поле прикреплено
