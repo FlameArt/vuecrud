@@ -783,7 +783,10 @@
                         Vue.set(that.Table, 'columns', cols);
 
                         // Прогружаем сами записи
-                        return that.REST.get(that.Table.name);
+                        //return that.REST.get(that.Table.name);
+
+                        // готово, записи прогрузятся автоматически
+                        return;
 
                     }
 
