@@ -121,8 +121,8 @@
 
                                                 <!-- Кнопки -->
                                                 <div v-show="Popup.Avatar.isEnabled===false" class="" style="margin-top: 5px; margin-left: auto;">
-                                                    <div class="btn btn-primary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">Обрезать</div>
-                                                    <div class="btn btn-primary" style="margin-left: 5px" @click="showAvatarOriginal(col.field)">Оригинал</div>
+                                                    <div class="btn btn-primary" style="display: block" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">Обрезать</div>
+                                                    <div class="btn btn-primary" style="display: block; margin-top: 5px" @click="showAvatarOriginal(col.field)">Оригинал</div>
                                                 </div>
 
                                                 <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled" :datatable-id="'basic-addon-file-avatar-'+col.label">
