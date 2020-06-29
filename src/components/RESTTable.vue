@@ -119,6 +119,11 @@
                                                     <div style="margin: auto" v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">📁</div>
                                                 </label>
 
+                                                <!-- Кнопки -->
+                                                <div v-show="Popup.Avatar.isEnabled===false" class="" style="margin-top: 5px; margin-left: auto;">
+                                                    <div class="btn btn-primary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">Обрезать</div>
+                                                    <div class="btn btn-primary" style="margin-left: 5px" @click="showAvatarOriginal(col.field)">Оригинал</div>
+                                                </div>
 
                                                 <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled" :datatable-id="'basic-addon-file-avatar-'+col.label">
                                                     <div class="datatable-popup-avatar-space-infopanel">
@@ -129,7 +134,6 @@
                                                     </div>
                                                 </div>
 
-                                                <div v-show="Popup.Avatar.isEnabled===false" style="margin-top: auto;" class="btn btn-primary" @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">Обрезать</div>
 
                                                 <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field style="display: none;" @change="fileSelected($event,col.field)"/>
                                             </div>
@@ -615,6 +619,20 @@
                     Vue.set(this.Popup.Avatar, 'isEnabled', false);
 
             },
+
+
+            showAvatarOriginal(fieldName) {
+
+                let randName = "Photo#" + (Math.random()*100);
+
+                let win = window.open("", randName);
+
+                win.document.title = randName;
+                win.document.body.innerHTML = "<img src=\"data:" + this.Popup.Fields[fieldName] + "\"/>";
+
+            },
+
+
 
 
             // Обновить таблицу
