@@ -25,13 +25,16 @@
                 <!-- Если это текстовое поле -->
                 <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control"
                        v-model="col.filter" @keyup="updateTable()" :placeholder="col.label" aria-label="Username"
+                       @focusout="PushToURLFilters"
                        :aria-describedby="'basic-addon'+col.label">
 
                 <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.from"
                        @keyup="updateTable()"
+                       @focusout="PushToURLFilters"
                        :placeholder="'от'" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
                 <input v-if="col.type==='number'" type="text" class="form-control" v-model="col.filterRange.to"
                        @keyup="updateTable()"
+                       @focusout="PushToURLFilters"
                        :placeholder="'до '" aria-label="Username" :aria-describedby="'basic-addon'+col.label"/>
 
 
@@ -643,6 +646,44 @@
                         break;
                     }
                 }
+            },
+
+            // Заменить параметры в URL после ввода в фильтры
+            PushToURLFilters() {
+
+                // Собираем все активные фильтры в ссылку
+                let filters = {};
+                for (let i = 0; i < this.Table.columns.length; i++) {
+
+                    let column = this.Table.columns[i];
+
+                    // Без фильтра
+                    if(!column.hasFilter) continue;
+
+                    // С пустым текстовым фильтром
+                    if (column.type === 'text') {
+                        if(column.filter === '') continue;
+                        filters[this.Table.columns[i].field] = this.Table.columns[i].filter;
+                    }
+                    if (column.type === 'fixed') {
+                        if(column.filter === '') continue;
+                        filters[this.Table.columns[i].field] = this.Table.columns[i].filter;
+                    }
+
+                    // С пустым фильтром от до
+                    if (column.type === 'number') {
+                        if (column.filterRange.from !== ''){
+                            filters["from." + this.Table.columns[i].field] = this.Table.columns[i].filterRange.from
+                        }
+                        if (column.filterRange.to !== '') {
+                            filters["to." + this.Table.columns[i].field] = this.Table.columns[i].filterRange.to
+                        }
+                    }
+
+                }
+
+                this.$router.replace({query: filters }).catch(res=>{});
+
             }
 
         },
@@ -671,7 +712,6 @@
                         Vue.set(that.Table, 'name', that.selectedtable);
                         Vue.set(that.Table, 'schema', (res.data.find(table => table.name === that.selectedtable)).fields);
                         Vue.set(that, 'Tables', res.data);
-
 
                         // Преобразуем колонки в формат компонента
                         // Типы:
@@ -796,6 +836,28 @@
 
                         if (!Array.isArray(cols) || cols.length === 0)
                             console.error("Не найдено колонок в таблице или они имеют ошибочный формат (нужен массив)")
+
+
+                        // Устанавливаем фильтры из URL
+                        for (let queryName in that.$route.query) {
+                            let colName = "";
+                            if(queryName.startsWith("to.")) {
+                                colName = queryName.substr(3);
+                                let finded = cols.find(res=>colName === res.field);
+                                if(finded!==undefined) finded.filterRange.to = that.$route.query[queryName];
+                                continue;
+                            }
+                            if(queryName.startsWith("from.")) {
+                                colName = queryName.substr(5);
+                                let finded = cols.find(res=>colName === res.field);
+                                if(finded!==undefined) finded.filterRange.from = that.$route.query[queryName];
+                                continue;
+                            }
+                            // во всех остальных случаях просто фиксируем значение
+                            let finded = cols.find(res=>queryName === res.field);
+                            if(finded!==undefined) finded.filter = that.$route.query[queryName];
+                        }
+
 
                         // Сохраняем преобразованные колонки
                         Vue.set(that.Table, 'columns', cols);

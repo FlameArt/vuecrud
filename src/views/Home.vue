@@ -11,7 +11,7 @@ export default {
   data: function () {
     return {
       columnsupdated: function (cols) {
-        cols.delete('id', {isShowOnPopup: false, label: "LOL", editName: "LLLLAL"});
+        cols.set('id', {isShowOnPopup: false, label: "LOL", editName: "LLLLAL", hasFilter: true, type: "number"});
         cols.delete('image', {isShowOnPopup: true, popupType: 'image', isLoadToTable: false});
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', hasFilter: true, editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});
         cols.set('name', {isEdit: false, popupType: 'text', popupTextRows: 15});

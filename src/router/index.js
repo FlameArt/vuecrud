@@ -8,7 +8,14 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    props: true
+  },
+  {
+    path: '/home/',
+    name: 'home',
+    component: Home,
+    props: true
   },
 ]
 
