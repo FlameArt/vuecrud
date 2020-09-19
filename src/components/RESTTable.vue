@@ -909,7 +909,8 @@
                     for (let column of that.Table.columns) {
                         if (column.linkedto !== null && column.isLoadKeys === true) {
                             allPromises.push(new Promise((resolve, reject) => {
-                                that.REST.get(column.linkedto.table, column.loadKeysParams.where, column.loadKeysParams.expand, column.loadKeysParams.fields, column.loadKeysParams.sortfields, column.loadKeysParams.page, column.loadKeysParams.perPage).then((res) => {
+                              // TODO: определить почему не прикрепляются параметры по-умолчанию, undefined вместо null
+                                that.REST.get(column.linkedto.table, column.loadKeysParams.where, column.loadKeysParams.expand, column.loadKeysParams.fields, column.loadKeysParams.sortfields, 1, 9999).then((res) => {
                                     Vue.set(column, 'selectResults', res.data);
                                     resolve();
                                 })
