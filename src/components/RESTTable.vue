@@ -278,6 +278,8 @@
                     rows: [],
                 },
 
+                isFirstLoad: true,
+
                 /**
                  * Инфа по странице
                  */
@@ -359,6 +361,24 @@
                         page: page,
                         perPage: perPage
                     };
+
+                    // Если это первая загрузка - то если есть предзагруженная сортировка - выбираем её
+                    if(SuperTHAT.isFirstLoad) {
+                        if(SuperTHAT.$route.query.hasOwnProperty('sortBy')) sortBy = SuperTHAT.$route.query.sortBy;
+                        if(SuperTHAT.$route.query.hasOwnProperty('sortDir')) sortBy = SuperTHAT.$route.query.sortDir;
+                        SuperTHAT.isFirstLoad = false;
+                    }
+                    else {
+                        // Все последующие выборки: сохраняем текущую сортировку в URL
+                        for (let ThisVueInstance of SuperTHAT.$children) {
+                            if(typeof ThisVueInstance.processRows === 'function') {
+                                if(ThisVueInstance.sortBy !== null) {
+                                    SuperTHAT.$router.replace({query: Object.assign(SuperTHAT.$route.query, {sortBy: ThisVueInstance.sortBy.field})}).catch(res=>{});
+                                }
+                                break;
+                            }
+                        }
+                    }
 
                     // Сортировка
                     if (sortDir === 'asc') request.sort = sortBy;
@@ -755,6 +775,17 @@
                                  * Загружать ли данные от foreign keys, т.к. данных может быть много, по-умолчанию выключено
                                  */
                                 isLoadKeys: false,
+
+                                // Какие параметры при загрузке ключа
+                                loadKeysParams: {
+                                  where: null,
+                                  expand: null,
+                                  fields: null,
+                                  sortfields: null,
+                                  page: 1,
+                                  perPage: 9999
+                                },
+
                                 selectRepresentAs: function (item) {
                                     return item
                                 },
@@ -878,7 +909,7 @@
                     for (let column of that.Table.columns) {
                         if (column.linkedto !== null && column.isLoadKeys === true) {
                             allPromises.push(new Promise((resolve, reject) => {
-                                that.REST.get(column.linkedto.table, null, null, null, null, 1, 99999).then((res) => {
+                                that.REST.get(column.linkedto.table, column.loadKeysParams.where, column.loadKeysParams.expand, column.loadKeysParams.fields, column.loadKeysParams.sortfields, column.loadKeysParams.page, column.loadKeysParams.perPage).then((res) => {
                                     Vue.set(column, 'selectResults', res.data);
                                     resolve();
                                 })

@@ -101,6 +101,16 @@ Vue.use(vuecrud);
         // Загружать ли связанные поля (foreign keys) в списки select, или оставить просто значение ключа (классический вариант)
         isLoadKeys: false,
         
+        // Возможность управлять загрузкой связанных ключей
+        loadKeysParams: {
+             where: null,
+             expand: null,
+             fields: null,
+             sortfields: null,
+             page: 1,
+             perPage: 9999
+        },
+        
         // Функция, которая приводит формат поля связанного списка в select к кастомному
         selectRepresentAs: column => 'Foreign key ' + column.id
         

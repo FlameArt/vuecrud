@@ -20,7 +20,7 @@ export default {
           name: "aaa",
             index: "aaab"
           }});
-        cols.set('key', {isLoadKeys: true, selectRepresentAs: item=>item.id});
+        cols.set('key', {isLoadKeys: true, loadKeysParams: {where: {id: 1}}, selectRepresentAs: item=>item.id});
         return cols;
       }
     }
