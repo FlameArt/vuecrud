@@ -60,7 +60,7 @@
               <div class="datatable-modal-mask" v-show="Popup.isPopupShowed" @click="Popup.isPopupShowed=false"></div>
             </transition>
                     <div class="datatable-modal-wrapper" v-show="Popup.isPopupShowed">
-                      <slot name="popup">
+                      <slot name="popup" v-bind:popup="Popup" v-bind:id="Popup.editID">
                         <div class="datatable-modal-container">
 
                             <div class="datatable-modal-header">

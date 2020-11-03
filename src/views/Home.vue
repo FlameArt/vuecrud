@@ -1,8 +1,8 @@
 <template lang="pug">
   div.home
       vuecrud(host="http://rest", selectedtable = "obj2", :columnsupdated="columnsupdated")
-        template(v-slot:popup)
-          div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") sdfsdfsd
+        template(v-slot:popup="slotProps")
+          div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") {{slotProps}}
 </template>
 
 <script>
