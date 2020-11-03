@@ -126,3 +126,9 @@ Vue.use(vuecrud);
         
     }
     
+## Свой Popup
+
+Можно установить через слот `popup`
+
+        template(v-slot:popup)
+          div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") Hello

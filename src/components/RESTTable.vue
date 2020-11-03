@@ -55,10 +55,12 @@
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
 
         <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
-        <div id="popupWindow">
+        <div id="popupWindow" v-show="Popup.isPopupShowed">
             <transition name="datatable-modal">
-                <div class="datatable-modal-mask" v-show="Popup.isPopupShowed">
-                    <div class="datatable-modal-wrapper">
+              <div class="datatable-modal-mask" v-show="Popup.isPopupShowed" @click="Popup.isPopupShowed=false"></div>
+            </transition>
+                    <div class="datatable-modal-wrapper" v-show="Popup.isPopupShowed">
+                      <slot name="popup">
                         <div class="datatable-modal-container">
 
                             <div class="datatable-modal-header">
@@ -179,9 +181,10 @@
                                 </button>
                             </div>
                         </div>
+                      </slot>
                     </div>
-                </div>
-            </transition>
+
+
         </div>
     </div>
 
@@ -940,6 +943,20 @@
         flex-direction: row;
     }
 
+    #popupWindow {
+      align-items: flex-start;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      left: 0;
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 10;
+      overflow: auto;
+      transition: opacity .3s ease;
+    }
+
     .datatable-modal-mask {
         position: fixed;
         z-index: 9998;
@@ -953,8 +970,13 @@
     }
 
     .datatable-modal-wrapper {
-        display: table-cell;
-        vertical-align: middle;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100%;
+      width: 80%;
+      padding: 30px;
+      z-index: 9998;
     }
 
     .datatable-modal-container {
