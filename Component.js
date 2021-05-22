@@ -3,7 +3,7 @@ import { TColumnsDefinition, VuejsDatatableFactory } from 'vuejs-datatable';
 
 
 function plugin (Vue) {
-  Vue.component('vueresttable', RESTTable);
+  Vue.component('vuecrud', RESTTable);
   Vue.use( VuejsDatatableFactory );
 }
 
@@ -15,5 +15,5 @@ if (typeof window !== 'undefined' && window.Vue) {
 export default plugin
 
 export {
-  RESTTable
+  RESTTable as vuecrud
 }
