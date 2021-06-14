@@ -41,16 +41,16 @@
             </div>
         </div>
         <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
-            <!--
             <template slot-scope="{ row, columns }">
+              <slot name="row" v-bind:row="row" v-bind:columns="columns">
                 <tr class="datatable_FilterHeader" v-if="false">
                     <td v-for="col in Table.columns"><input v-model="col.filter"></td>
                 </tr>
                 <tr>
                     <td v-for="col in columns">{{ row[col.field] }}</td>
                 </tr>
+              </slot>
             </template>
-            -->
         </datatable>
         <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
 

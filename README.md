@@ -128,7 +128,16 @@ Vue.use(vuecrud);
     
 ## Свой Popup
 
+*Примеры на Pug*
+
 Можно установить через слот `popup`
 
         template(v-slot:popup)
           div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") Hello
+
+## Кастомный шаблон строки таблицы
+
+        template(v-slot:row="binds")
+          tr
+            td {{binds.row.name}}
+            td {{binds.columns[0].name}}
