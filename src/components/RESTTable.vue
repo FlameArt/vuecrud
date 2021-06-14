@@ -197,6 +197,8 @@
     import Vue from 'vue'
     import {TColumnsDefinition, VuejsDatatableFactory} from 'vuejs-datatable';
 
+    import "regenerator-runtime/runtime";
+
     // Импортим REST
     import FLAMEREST from "flamerest";
 
