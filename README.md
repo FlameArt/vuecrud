@@ -5,7 +5,7 @@
 
 # Установка
 
-    npm install FlameArt/vuecrud --save
+    npm i flamecrud --save
 
 Импортируем компонент:
 
