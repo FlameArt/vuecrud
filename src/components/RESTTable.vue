@@ -340,6 +340,8 @@
 
                 },
 
+              microPauseFilterLastDT: Date.now(),
+
                 /**
                  * Способ получения данных
                  * @param sortBy
@@ -665,12 +667,18 @@
 
             // Обновить таблицу
             updateTable: function() {
+
+              // Микропауза после ввода, чтобы не выполнять запросы каждую секунду
+              if(Date.now() - this.microPauseFilterLastDT > 300) {
+
                 for (let ThisVueInstance of this.$children) {
-                    if(typeof ThisVueInstance.processRows === 'function') {
-                        ThisVueInstance.processRows();
-                        break;
-                    }
+                  if (typeof ThisVueInstance.processRows === 'function') {
+                    ThisVueInstance.processRows();
+                    break;
+                  }
                 }
+                this.microPauseFilterLastDT = Date.now();
+              }
             },
 
             // Заменить параметры в URL после ввода в фильтры
