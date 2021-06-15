@@ -732,8 +732,10 @@
             SuperTHAT = that;
 
             // Устанавливаем REST
-            this.REST = new FLAMEREST(this.host);
-            window.REST = this.REST;
+            if(window.REST === undefined)
+              window.REST = new FLAMEREST(this.host);
+
+            this.REST = window.REST;
 
             // Получаем схему CRUD
             this.REST.getCRUDInfo()
