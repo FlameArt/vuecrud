@@ -1,6 +1,6 @@
 <template lang="pug">
   div.home
-      vuecrud(host="http://rest", selectedtable = "obj2", :columnsupdated="columnsupdated")
+      vuecrud(host="http://rest", selectedtable = "obj2", :columnsupdated="columnsupdated", :opts="opts")
         template(v-slot:popup="slotProps")
           div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") {{slotProps}}
         template(v-slot:row="binds")
@@ -30,6 +30,10 @@ export default {
           }});
         cols.set('key', {isLoadKeys: true, loadKeysParams: {where: {id: 1}}, selectRepresentAs: item=>item.id});
         return cols;
+      },
+
+      opts: {
+        where: {id: 1}
       }
     }
   }

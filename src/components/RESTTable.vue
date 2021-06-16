@@ -250,7 +250,8 @@
                     return {
                         canAdd: true,
                         canRemove: true,
-                        canEdit: true
+                        canEdit: true,
+                        where: {}
                     }
                 }
             },
@@ -411,7 +412,12 @@
                                 TotalWhere[column.field + "to"] = ['<=', column.field, column.filterRange.to];
                         }
                     }
-                    if (Object.keys(TotalWhere).length > 0)
+
+                  // Копируем Preload WHERE запрос (предустановленная фильтрация по-умолчанию, независимо ни от чего)
+                  TotalWhere = Object.assign({}, TotalWhere, SuperTHAT.opts.where === undefined ? {} : SuperTHAT.opts.where);
+
+                  // Окончательно устанавливаем WHERE
+                  if (Object.keys(TotalWhere).length > 0)
                         request.where = TotalWhere;
 
                     // Добавляем поля [из чистой схемы, чтобы все поля были добавлены]
@@ -423,7 +429,6 @@
                     // Применяем к запросу коллбек, если он прописан
                     if (typeof SuperTHAT.beforeGetRows === 'function')
                         request = SuperTHAT.beforeGetRows(request);
-
 
                     // Получаем данные
                     let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage);
