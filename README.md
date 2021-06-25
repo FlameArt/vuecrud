@@ -141,3 +141,11 @@ Vue.use(vuecrud);
           tr
             td {{binds.row.name}}
             td {{binds.columns[0].name}}
+
+## Ленивая загрузка паджинации
+
+Нужна, т.к. запрос на Count(*) занимает значительно большее время, нежели SELECT LIMIT, что для ёмких запросов критично
+
+    opts: {
+        lazyLoadPagination: true
+    }

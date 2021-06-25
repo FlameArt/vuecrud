@@ -251,7 +251,10 @@
                         canAdd: true,
                         canRemove: true,
                         canEdit: true,
-                        where: {}
+                        where: {},
+                        pagination: {
+                          lazy: 100
+                        }
                     }
                 }
             },
@@ -861,7 +864,16 @@
                             }
                         });
 
-                        // Применяем к формату колонок коллбек, для их кастомизации
+                      Object.defineProperty(cols, 'deleteAll', {
+                        configurable: true, enumerable: false, value: function (FieldName, Params) {
+
+                          this.splice(0, 1000);
+
+                          return this;
+                        }
+                      });
+
+                      // Применяем к формату колонок коллбек, для их кастомизации
                         if (typeof that.columnsupdated === 'function') {
                             let changedCols = that.columnsupdated(cols, that)
                             // Если забыли вернуть значение, ничего, можно пользоваться просто set и delete и всё будет ок
