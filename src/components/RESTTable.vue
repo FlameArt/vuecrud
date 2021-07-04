@@ -60,7 +60,7 @@
       <div class="datatable-loader-overlay" v-if="isLoading">
         <!--<div class="lds-ripple"><div></div><div></div></div>-->
         <!--<div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
-        <div class="lds-dual-ring"></div>
+        <div style="margin: 0 auto"><div class="lds-dual-ring"></div></div>
       </div>
     </div>
 
@@ -1320,6 +1320,7 @@ export default {
   width: 100%;
   height: 100%;
   z-index: 99999;
+  display: flex;
 }
 
 
