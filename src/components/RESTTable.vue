@@ -16,7 +16,8 @@
     </div>
 
     <div>
-      <div class="datatableFilters" v-for="(val, i) in Filters.rows" :style="'margin-top: '+optsFilter.filterRowMargin+'px'">
+      <div class="datatableFilters" v-for="(val, i) in Filters.rows"
+           :style="'margin-top: '+optsFilter.filterRowMargin+'px'">
         <div class="input-group" v-for="col in Table.columns" v-show="col.hasFilter" v-if="col.filterRow === i">
 
           <div class="input-group-prepend">
@@ -42,19 +43,26 @@
         </div>
       </div>
     </div>
-    <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
-      <template slot-scope="{ row, columns }">
-        <slot name="row" v-bind:row="row" v-bind:columns="columns">
-          <tr class="datatable_FilterHeader" v-if="false">
-            <td v-for="col in Table.columns"><input v-model="col.filter"></td>
-          </tr>
-          <tr>
-            <td v-for="col in columns">{{ row[col.field] }}</td>
-          </tr>
-        </slot>
-      </template>
-    </datatable>
-    <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
+    <div class="datatable-loader">
+      <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
+        <template slot-scope="{ row, columns }">
+          <slot name="row" v-bind:row="row" v-bind:columns="columns">
+            <tr class="datatable_FilterHeader" v-if="false">
+              <td v-for="col in Table.columns"><input v-model="col.filter"></td>
+            </tr>
+            <tr>
+              <td v-for="col in columns">{{ row[col.field] }}</td>
+            </tr>
+          </slot>
+        </template>
+      </datatable>
+      <datatable-pager table="mainTable" v-model="Pager.Page" type="abbreviated"></datatable-pager>
+      <div class="datatable-loader-overlay" v-if="isLoading">
+        <!--<div class="lds-ripple"><div></div><div></div></div>-->
+        <!--<div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
+        <div class="lds-dual-ring"></div>
+      </div>
+    </div>
 
     <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
     <div id="popupWindow" v-show="Popup.isPopupShowed">
@@ -307,6 +315,8 @@ export default {
 
       isFirstLoad: true,
 
+      isLoading: true,
+
       /**
        * Инфа по странице
        */
@@ -455,6 +465,10 @@ export default {
         if (typeof SuperTHAT.beforeGetRows === 'function')
           request = SuperTHAT.beforeGetRows(request);
 
+        // Устанавливаем анимацию лоадера
+        SuperTHAT.isLoading = true;
+
+
         // Получаем данные
         let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage);
         let rows = data.data;
@@ -469,6 +483,9 @@ export default {
 
         // Так же справочно записываем в массив
         Vue.set(SuperTHAT.Table, 'rows', rows);
+
+        // Загрузка завершена
+        SuperTHAT.isLoading = false;
 
         return {
           rows: rows,
@@ -910,8 +927,12 @@ export default {
             // Устанавливаем число строк и столбцов в фильтрах
             that.Filters.rows = Math.max.apply(null, cols.map(r => r.filterRow));
             that.Filters.columns = Math.max.apply(null, cols.map(r => r.filterColumn));
-            let tempFilterRows = []; for(let i=0; i<=that.Filters.rows;i++) tempFilterRows.push(cols.filter(r => r.filterRow===i)); that.Filters.rows = tempFilterRows;
-            let tempFilterColumns = []; for(let i=0; i<=that.Filters.columns;i++) tempFilterColumns.push(cols.filter(r => r.filterColumn===i)); that.Filters.columns = tempFilterColumns;
+            let tempFilterRows = [];
+            for (let i = 0; i <= that.Filters.rows; i++) tempFilterRows.push(cols.filter(r => r.filterRow === i));
+            that.Filters.rows = tempFilterRows;
+            let tempFilterColumns = [];
+            for (let i = 0; i <= that.Filters.columns; i++) tempFilterColumns.push(cols.filter(r => r.filterColumn === i));
+            that.Filters.columns = tempFilterColumns;
 
             // Выбираем первую колонку как primary key и устанавливаем её вид как ссылку на редактирование,
             // если у неё нет замещатора и редактирование поддерживается
@@ -1148,6 +1169,157 @@ export default {
   .btn-secondary {
     margin-top: 20px;
   }
+}
+
+/* LOADER ANIMATION */
+.lds-ripple {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.lds-ripple div {
+  position: absolute;
+  border: 4px solid black;
+  opacity: 1;
+  border-radius: 50%;
+  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.lds-ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+
+@keyframes lds-ripple {
+  0% {
+    top: 36px;
+    left: 36px;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 0px;
+    left: 0px;
+    width: 72px;
+    height: 72px;
+    opacity: 0;
+  }
+}
+
+.lds-grid {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-grid div {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: black;
+  animation: lds-grid 1.2s linear infinite;
+}
+.lds-grid div:nth-child(1) {
+  top: 8px;
+  left: 8px;
+  animation-delay: 0s;
+}
+.lds-grid div:nth-child(2) {
+  top: 8px;
+  left: 32px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(3) {
+  top: 8px;
+  left: 56px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(4) {
+  top: 32px;
+  left: 8px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(5) {
+  top: 32px;
+  left: 32px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(6) {
+  top: 32px;
+  left: 56px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(7) {
+  top: 56px;
+  left: 8px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(8) {
+  top: 56px;
+  left: 32px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(9) {
+  top: 56px;
+  left: 56px;
+  animation-delay: -1.6s;
+}
+@keyframes lds-grid {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid black;
+  border-color: gray transparent gray transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.datatable-loader {
+
+  display: flex;
+  //display: table-cell;
+
+  position: relative;
+
+}
+
+.datatable-loader-overlay {
+  opacity: 0.9;
+  background-color: white;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
 }
 
 
