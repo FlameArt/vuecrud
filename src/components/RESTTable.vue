@@ -1304,9 +1304,6 @@ export default {
 
 .datatable-loader {
 
-  display: flex;
-  //display: table-cell;
-
   position: relative;
 
 }
