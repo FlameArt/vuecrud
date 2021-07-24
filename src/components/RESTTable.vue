@@ -10,14 +10,14 @@
       </vue-avatar>
     </div>
 
-    <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px" v-show="opts.canAdd===true"
+    <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px" v-show="optsInfo.canAdd===true"
          @click="popupAdd()">
       + Добавить
     </div>
 
     <div>
       <div class="datatableFilters" v-for="(val, i) in Filters.rows"
-           :style="'margin-top: '+optsFilter.filterRowMargin+'px'">
+           :style="'margin-top: '+optsInfo.filterRowMargin+'px'">
         <div class="input-group" v-for="col in Table.columns" v-show="col.hasFilter" v-if="col.filterRow === i">
 
           <div class="input-group-prepend">
@@ -45,7 +45,7 @@
     </div>
     <div class="datatable-loader">
       <datatable name="mainTable" :columns="Table.columns" :data="getData" :per-page="Pager.PerPage">
-        <template slot-scope="{ row, columns }">
+        <template slot-scope="{ row, columns }" v-if="hasSlot('row')">
           <slot name="row" v-bind:row="row" v-bind:columns="columns">
             <tr class="datatable_FilterHeader" v-if="false">
               <td v-for="col in Table.columns"><input v-model="col.filter"></td>
@@ -197,7 +197,7 @@
             </div>
 
             <div class="datatable-modal-footer">
-              <button v-show="opts.canRemove" class="btn btn-dark datatable-popup-remove"
+              <button v-show="optsInfo.canRemove" class="btn btn-dark datatable-popup-remove"
                       @click="removePopup()">
                 Удалить
               </button>
@@ -761,6 +761,10 @@ export default {
       this.$router.replace({query: filters}).catch(res => {
       });
 
+    },
+
+    hasSlot (name = 'default') {
+      return !!this.$slots[ name ] || !!this.$scopedSlots[ name ];
     }
 
   },
@@ -937,7 +941,7 @@ export default {
             // Выбираем первую колонку как primary key и устанавливаем её вид как ссылку на редактирование,
             // если у неё нет замещатора и редактирование поддерживается
             for (let i = 0; i < cols.length; i++) {
-              if (cols[i].representedAs === undefined && this.opts.canEdit === true) {
+              if (cols[i].representedAs === undefined && that.optsInfo.canEdit === true) {
                 if (i === 0)
                   cols[i].representedAs = function (row) {
                     return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">' + row[cols[i].field] + '</a>'
@@ -1008,7 +1012,7 @@ export default {
   },
 
   computed: {
-    optsFilter: function () {
+    optsInfo: function () {
       return Object.assign({
         canAdd: true,
         canRemove: true,
@@ -1016,7 +1020,7 @@ export default {
         where: {},
         filterRowMargin: 0,
       }, this.opts);
-    }
+    },
   }
 
 }
