@@ -25,7 +25,7 @@
           </div>
 
           <!-- Если это текстовое поле -->
-          <input v-if="col.type==='text' || col.type==='fixed'" type="text" class="form-control"
+          <input v-if="col.type==='text' || col.type==='fulltext' || col.type==='fixed'" type="text" class="form-control"
                  v-model="col.filter" @keyup="updateTable()" :placeholder="col.label" aria-label="Username"
                  @focusout="PushToURLFilters"
                  :aria-describedby="'basic-addon'+col.label">
@@ -435,6 +435,9 @@ export default {
           if (column.type === 'text' && column.filter !== '') {
             TotalWhere[column.field] = ['LIKE', column.field, column.filter];
           }
+          if (column.type === 'fulltext' && column.filter !== '') {
+            TotalWhere[column.field] = ['FULLTEXT', column.field, column.filter];
+          }
           // Точное совпадение
           if (column.type === 'fixed' && column.filter !== '') {
             TotalWhere[column.field] = column.filter;
@@ -738,6 +741,10 @@ export default {
 
         // С пустым текстовым фильтром
         if (column.type === 'text') {
+          if (column.filter === '') continue;
+          filters[this.Table.columns[i].field] = this.Table.columns[i].filter;
+        }
+        if (column.type === 'fulltext') {
           if (column.filter === '') continue;
           filters[this.Table.columns[i].field] = this.Table.columns[i].filter;
         }
