@@ -26,7 +26,7 @@
 
           <!-- Если это текстовое поле -->
           <input v-if="col.type==='text' || col.type==='fulltext' || col.type==='fixed'" type="text" class="form-control"
-                 v-model="col.filter" @keyup="updateTable()" :placeholder="col.label" aria-label="Username"
+                 v-model="col.filter" @keyup="updateTable(col)" :placeholder="col.label" aria-label="Username"
                  @focusout="PushToURLFilters"
                  :aria-describedby="'basic-addon'+col.label">
 
@@ -712,10 +712,13 @@ export default {
 
 
     // Обновить таблицу
-    updateTable: function () {
+    updateTable: function (col) {
 
       // Микропауза после ввода, чтобы не выполнять запросы каждую секунду
       if (Date.now() - this.microPauseFilterLastDT > 300) {
+
+        // минимальное число символов для запроса
+        if(col!==undefined && (col.type==='text' || col.type==='fulltext' || col.type==='fixed') && col.filter.length < col.filterMinSymbolsRequest) return;
 
         for (let ThisVueInstance of this.$children) {
           if (typeof ThisVueInstance.processRows === 'function') {
@@ -818,6 +821,9 @@ export default {
                 filter: '',
                 filterRange: {from: '', to: ''},
                 hasFilter: false,
+
+                // Минимальное число символов в строке фильтра, после которого будет произведён запрос
+                filterMinSymbolsRequest: 0,
 
                 // Позиции фильтров
                 filterRow: 0,
