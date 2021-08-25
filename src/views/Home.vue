@@ -1,6 +1,7 @@
 <template lang="pug">
   div.home
-      vuecrud(host="http://rest", selectedtable = "obj2", :columnsupdated="columnsupdated", :opts="opts")
+      div(@click="exportE()") EXPORT EXCEL
+      vuecrud(ref="LUL", host="http://rest", selectedtable = "obj2", :columnsupdated="columnsupdated", :opts="opts")
         template(v-slot:row1="binds")
           tr
             td {{binds.row.name}}
@@ -34,6 +35,11 @@ export default {
         where: {id: 1,},canEdit: true
         //filterRowMargin: 50
       }
+    }
+  },
+  methods: {
+    exportE: function (){
+      this.$refs.LUL.export('xlsx');
     }
   }
 }

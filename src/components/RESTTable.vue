@@ -384,9 +384,10 @@ export default {
        * @param sortDir
        * @param perPage
        * @param page
+       * @param format
        * @return {Promise<{totalRowCount: *, rows: *}>}
        */
-      async getData({sortBy, sortDir, perPage, page}) {
+      async getData({sortBy, sortDir, perPage, page}, format = null) {
 
         // Если ещё не было получено колонок (схемы КРУД), то не делаем первый запрос до получения схемы
         if (SuperTHAT.Table.columns.length === 0) return {
@@ -458,6 +459,9 @@ export default {
         if (Object.keys(TotalWhere).length > 0)
           request.where = TotalWhere;
 
+        // Устанавливаем формат экспорта, если он был запрошен
+        request.format = format;
+
         // Добавляем поля [из чистой схемы, чтобы все поля были добавлены]
         for (let column of SuperTHAT.Table.schema) {
           if (column.isLoadToTable)
@@ -473,7 +477,7 @@ export default {
 
 
         // Получаем данные
-        let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage);
+        let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage, null, request.format);
         let rows = data.data;
 
         // Обрабатываем данные перед выводом
@@ -712,7 +716,7 @@ export default {
 
 
     // Обновить таблицу
-    updateTable: function (col) {
+    updateTable: function (col, format) {
 
       // Микропауза после ввода, чтобы не выполнять запросы каждую секунду
       if (Date.now() - this.microPauseFilterLastDT > 300) {
@@ -775,6 +779,10 @@ export default {
 
     hasSlot (name = 'default') {
       return !!this.$slots[ name ] || !!this.$scopedSlots[ name ];
+    },
+
+    export(format) {
+      this.getData({page: 1, perPage:999999999, sortBy: null, sortDir: null}, 'xlsx');
     }
 
   },
@@ -837,6 +845,7 @@ export default {
                 // text - поиск через частичное совпадение (LIKE)
                 // number - числовой поиск в диапазоне от - до
                 // fixed - точное совпадение
+                // loadKeys - загрузка значений из внешней таблицы
                 type: col.type === "integer" ? 'number' : 'text',
 
                 // Тип элемента в попапе
