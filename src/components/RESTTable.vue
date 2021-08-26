@@ -478,25 +478,75 @@ export default {
 
         // Получаем данные
         let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage, null, request.format);
-        let rows = data.data;
 
-        // Обрабатываем данные перед выводом
-        if (typeof SuperTHAT.rowsupdated === 'function')
-          rows = SuperTHAT.rowsupdated(rows, SuperTHAT.Table.columns, SuperTHAT.Table);
+        // Обычный ответ с выводом таблицы: сохраняем строки
+        if(format === null) {
+          let rows = data.data;
 
-        // Устанавливаем их
-        SuperTHAT.Pager.Total = data.pages.total;
-        SuperTHAT.Pager.Count = data.pages.count;
+          // Обрабатываем данные перед выводом
+          if (typeof SuperTHAT.rowsupdated === 'function')
+            rows = SuperTHAT.rowsupdated(rows, SuperTHAT.Table.columns, SuperTHAT.Table);
 
-        // Так же справочно записываем в массив
-        Vue.set(SuperTHAT.Table, 'rows', rows);
+          // Устанавливаем их
+          SuperTHAT.Pager.Total = data.pages.total;
+          SuperTHAT.Pager.Count = data.pages.count;
 
-        // Загрузка завершена
-        SuperTHAT.isLoading = false;
+          // Так же справочно записываем в массив
+          Vue.set(SuperTHAT.Table, 'rows', rows);
 
-        return {
-          rows: rows,
-          totalRowCount: SuperTHAT.Pager.Total,
+          // Загрузка завершена
+          SuperTHAT.isLoading = false;
+
+          return {
+            rows: rows,
+            totalRowCount: SuperTHAT.Pager.Total,
+          }
+        }
+
+        // Ответ с блобом: сохраняем файл
+        else {
+
+          let filename = request.tablename + "_" + (new Date()).toISOString().slice(0,10).replace(/-/g,"") + ".xlsx"
+
+          // It is necessary to create a new blob object with mime-type explicitly set
+          // otherwise only Chrome works like it should
+          const blob = new Blob([data.data], { type: data.MimeType || 'application/octet-stream' });
+          if (typeof window.navigator.msSaveBlob !== 'undefined') {
+            // IE doesn't allow using a blob object directly as link href.
+            // Workaround for "HTML7007: One or more blob URLs were
+            // revoked by closing the blob for which they were created.
+            // These URLs will no longer resolve as the data backing
+            // the URL has been freed."
+            window.navigator.msSaveBlob(blob, filename);
+            return;
+          }
+          // Other browsers
+          // Create a link pointing to the ObjectURL containing the blob
+          const blobURL = window.URL.createObjectURL(blob);
+          const tempLink = document.createElement('a');
+          tempLink.style.display = 'none';
+          tempLink.href = blobURL;
+          tempLink.setAttribute('download', filename);
+          // Safari thinks _blank anchor are pop ups. We only want to set _blank
+          // target if the browser does not support the HTML5 download attribute.
+          // This allows you to download files in desktop safari if pop up blocking
+          // is enabled.
+          if (typeof tempLink.download === 'undefined') {
+            tempLink.setAttribute('target', '_blank');
+          }
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+          setTimeout(() => {
+            // For Firefox it is necessary to delay revoking the ObjectURL
+            window.URL.revokeObjectURL(blobURL);
+          }, 100);
+
+          // Загрузка завершена
+          SuperTHAT.isLoading = false;
+
+          return {};
+
         }
 
       },
