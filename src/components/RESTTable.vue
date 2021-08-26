@@ -480,7 +480,7 @@ export default {
 
 
         // Получаем данные
-        let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage, null, request.format);
+        let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage, null, request.format, request.titles);
 
         // Обычный ответ с выводом таблицы: сохраняем строки
         if(format === null) {
