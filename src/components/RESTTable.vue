@@ -401,6 +401,7 @@ export default {
           where: null,
           expand: null,
           fields: [],
+          titles: [],
           sort: null,
           page: page,
           perPage: perPage
@@ -464,8 +465,10 @@ export default {
 
         // Добавляем поля [из чистой схемы, чтобы все поля были добавлены]
         for (let column of SuperTHAT.Table.schema) {
-          if (column.isLoadToTable)
+          if (column.isLoadToTable) {
             request.fields.push(column.field);
+            request.titles.push(column.label);
+          }
         }
 
         // Применяем к запросу коллбек, если он прописан
