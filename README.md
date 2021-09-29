@@ -140,6 +140,16 @@ Vue.use(vuecrud);
         
     }
     
+#### Дополнительные параметры колонок, которые предустановлены из vue-datatable
+
+    // Специфичный формат одной колонки
+    representedAs: row=> row.name,
+    
+    // Преобразовать колонку в html: true
+    interpolate: true
+    
+Остальные параметры в: https://gerkindev.github.io/vuejs-datatable/classes/column.html
+
 ## Свой Popup
 
 *Примеры на Pug*
