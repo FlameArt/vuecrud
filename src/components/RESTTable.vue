@@ -651,9 +651,18 @@ export default {
 
       // Добавление
       if (this.Popup.editField === "") {
-        this.REST.create(this.Table.name, this.Popup.Fields).then(res => {
+
+        let newFields = Object.assign({}, this.Popup.Fields);
+
+        // Предзаполняем поля стандартными значениями, если они есть
+        for (let column of that.Table.columns)
+          if (column.defaultValue !== undefined)
+            newFields[column.field] = column.defaultValue;
+
+        this.REST.create(this.Table.name, newFields).then(res => {
           that.Table.rows.unshift(res.data);
         })
+
       }
       // Изменение
       else {
@@ -877,6 +886,9 @@ export default {
 
                 label: col.comment,
                 field: col.name,
+
+                // Стандартное значение колонки при вставке нового элемента, если оно не было заполнено
+                defaultValue: undefined,
 
 
                 filter: '',
