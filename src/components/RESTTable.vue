@@ -655,7 +655,7 @@ export default {
         let newFields = Object.assign({}, this.Popup.Fields);
 
         // Предзаполняем поля стандартными значениями, если они есть
-        for (let column of that.Table.columns)
+        for (let column of that.Table.schema)
           if (column.defaultValue !== undefined)
             newFields[column.field] = column.defaultValue;
 
