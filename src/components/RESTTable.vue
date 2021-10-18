@@ -72,16 +72,14 @@
       </transition>
       <div class="datatable-modal-wrapper" v-show="Popup.isPopupShowed">
         <slot name="popup" v-bind:popup="Popup" v-bind:id="Popup.editID">
+
+          <slot name="popupHeader" v-bind:popup="Popup" v-bind:id="Popup.editID">
+            <div class="datatable-modal-header">
+              {{ Popup.buttonSaveName.toUpperCase() }}
+            </div>
+          </slot>
+
           <div class="datatable-modal-container">
-
-            <slot name="popupHeader" v-bind:popup="Popup" v-bind:id="Popup.editID">
-
-              <div class="datatable-modal-header">
-                {{ Popup.buttonSaveName.toUpperCase() }}
-              </div>
-
-            </slot>
-
             <div class="datatable-modal-body">
               <form>
                 <div v-for="col in Table.schema" v-if="col.isShowOnPopup || col.isEdit">
@@ -1166,7 +1164,7 @@ export default {
   justify-content: center;
   min-height: 100%;
   width: 80%;
-  padding: 30px;
+  padding: 0px;
   z-index: 9998;
 }
 
