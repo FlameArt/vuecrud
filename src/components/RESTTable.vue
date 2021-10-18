@@ -65,6 +65,7 @@
     </div>
 
     <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
+    <slot name="fullPopup" v-bind:fullPopup="Popup" v-bind:id="Popup.editID">
     <div id="popupWindow" v-show="Popup.isPopupShowed">
       <transition name="datatable-modal">
         <div class="datatable-modal-mask" v-show="Popup.isPopupShowed" @click="Popup.isPopupShowed=false"></div>
@@ -73,9 +74,13 @@
         <slot name="popup" v-bind:popup="Popup" v-bind:id="Popup.editID">
           <div class="datatable-modal-container">
 
-            <div class="datatable-modal-header">
-              {{ Popup.buttonSaveName.toUpperCase() }}
-            </div>
+            <slot name="popupHeader" v-bind:popup="Popup" v-bind:id="Popup.editID">
+
+              <div class="datatable-modal-header">
+                {{ Popup.buttonSaveName.toUpperCase() }}
+              </div>
+
+            </slot>
 
             <div class="datatable-modal-body">
               <form>
@@ -215,6 +220,7 @@
 
 
     </div>
+    </slot>
   </div>
 
 
@@ -1412,7 +1418,7 @@ export default {
 }
 
 .sort_up {
-  background: im;
+  //background: im;
 }
 
 </style>

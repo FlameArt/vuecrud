@@ -8,6 +8,8 @@
             td {{binds.columns[0].name}}
             td f
             td f
+        template(v-slot:popupHeader="bind")
+          div TEST
 </template>
 
 <script>
