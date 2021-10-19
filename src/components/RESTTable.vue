@@ -92,7 +92,7 @@
                                                       style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                       :id="'basic-addon'+col.label">{{ col.editName }}</span>
                       </div>
-                      <input v-model="Popup.Fields[col.field]" type="text"
+                      <input v-model="Popup.Fields[col.field]" :type="col.type === 'number' ? 'number' : 'text'"
                              class="form-control"
                              :placeholder="col.editDesc" aria-label="Имя пользователя"
                              :aria-describedby="'basic-addon'+col.label"
