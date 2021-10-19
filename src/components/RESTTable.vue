@@ -25,7 +25,8 @@
           </div>
 
           <!-- Если это текстовое поле -->
-          <input v-if="col.type==='text' || col.type==='fulltext' || col.type==='fixed'" type="text" class="form-control"
+          <input v-if="col.type==='text' || col.type==='fulltext' || col.type==='fixed'" type="text"
+                 class="form-control"
                  v-model="col.filter" @keyup="updateTable(col)" :placeholder="col.label" aria-label="Username"
                  @focusout="PushToURLFilters"
                  :aria-describedby="'basic-addon'+col.label">
@@ -60,164 +61,172 @@
       <div class="datatable-loader-overlay" v-if="isLoading">
         <!--<div class="lds-ripple"><div></div><div></div></div>-->
         <!--<div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>-->
-        <div style="margin: 0 auto"><div class="lds-dual-ring"></div></div>
+        <div style="margin: 0 auto">
+          <div class="lds-dual-ring"></div>
+        </div>
       </div>
     </div>
 
     <!-- ПОПАП С РЕДАКТИРОВАНИЕМ ИНФОРМАЦИИ ОБ ЭЛЕМЕНТЕ -->
     <slot name="fullPopup" v-bind:fullPopup="Popup" v-bind:id="Popup.editID">
-    <div id="popupWindow" v-show="Popup.isPopupShowed">
-      <transition name="datatable-modal">
-        <div class="datatable-modal-mask" v-show="Popup.isPopupShowed" @click="Popup.isPopupShowed=false"></div>
-      </transition>
-      <div class="datatable-modal-wrapper" v-show="Popup.isPopupShowed">
-        <slot name="popup" v-bind:popup="Popup" v-bind:id="Popup.editID">
+      <div id="popupWindow" v-show="Popup.isPopupShowed">
+        <transition name="datatable-modal">
+          <div class="datatable-modal-mask" v-show="Popup.isPopupShowed" @click="Popup.isPopupShowed=false"></div>
+        </transition>
+        <div class="datatable-modal-wrapper" v-show="Popup.isPopupShowed">
+          <slot name="popup" v-bind:popup="Popup" v-bind:id="Popup.editID">
 
-          <slot name="popupHeader" v-bind:popup="Popup" v-bind:id="Popup.editID">
-            <div class="datatable-modal-header">
-              {{ Popup.buttonSaveName.toUpperCase() }}
-            </div>
-          </slot>
+            <slot name="popupHeader" v-bind:popup="Popup" v-bind:id="Popup.editID">
+              <div class="datatable-modal-header">
+                {{ Popup.buttonSaveName.toUpperCase() }}
+              </div>
+            </slot>
 
-          <div class="datatable-modal-container">
-            <div class="datatable-modal-body">
-              <form>
-                <div v-for="col in Table.schema" v-if="col.isShowOnPopup || col.isEdit">
-                  <div v-if="col.linkedto===null || col.isLoadKeys===false">
+            <div class="datatable-modal-container">
+              <div class="datatable-modal-body">
+                <form>
+                  <div v-for="(col, colindex) in Table.schema" v-if="col.isShowOnPopup || col.isEdit">
+                    <div v-if="col.linkedto===null || col.isLoadKeys===false">
 
-                    <!-- Строки -->
-                    <div class="input-group mb-3" v-if="col.popupType==='string'">
-                      <div class="input-group-prepend">
+                      <!-- Строки -->
+                      <div class="input-group" v-if="col.popupType==='string'">
+                        <div class="input-group-prepend">
                                                 <span class="input-group-text"
                                                       style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                       :id="'basic-addon'+col.label">{{ col.editName }}</span>
+                        </div>
+                        <input v-model="Popup.Fields[col.field]" :type="col.type === 'number' ? 'number' : 'text'"
+                               class="form-control"
+                               :placeholder="col.editDesc" aria-label="Имя пользователя"
+                               :aria-describedby="'basic-addon'+col.label"
+                               :readonly="!col.isEdit && Popup.editField!==''">
                       </div>
-                      <input v-model="Popup.Fields[col.field]" :type="col.type === 'number' ? 'number' : 'text'"
-                             class="form-control"
-                             :placeholder="col.editDesc" aria-label="Имя пользователя"
-                             :aria-describedby="'basic-addon'+col.label"
-                             :readonly="!col.isEdit && Popup.editField!==''">
-                    </div>
 
-                    <!-- textarea -->
-                    <div class="form-group" v-if="col.popupType==='text'">
-                      <label for="exampleFormControlTextarea1">{{ col.editDesc }}</label>
-                      <textarea class="form-control"
-                                id="exampleFormControlTextarea1"
-                                :rows="col.popupTextRows"
-                                v-model="Popup.Fields[col.field]"
-                                :readonly="!col.isEdit && Popup.editField!==''"
-                      ></textarea>
-                    </div>
+                      <!-- textarea -->
+                      <div class="form-group" v-if="col.popupType==='text'">
+                        <label for="exampleFormControlTextarea1">{{ col.editDesc }}</label>
+                        <textarea class="form-control"
+                                  id="exampleFormControlTextarea1"
+                                  :rows="col.popupTextRows"
+                                  v-model="Popup.Fields[col.field]"
+                                  :readonly="!col.isEdit && Popup.editField!==''"
+                        ></textarea>
+                      </div>
 
-                    <!-- button -->
-                    <div class="input-group mb-3" v-if="col.popupType==='button'">
-                      <div class="input-group-prepend">
+                      <!-- button -->
+                      <div class="input-group mb-3" v-if="col.popupType==='button'">
+                        <div class="input-group-prepend">
                                                 <span class="input-group-text"
                                                       style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                       :id="'basic-addon'+col.label">{{ col.editName }}</span>
+                        </div>
+                        <button type="button" style="margin-left: auto" class="form-control btn btn-light"
+                                @click="col.buttonFunction(Popup.Fields, REST)">{{ col.label }}
+                        </button>
                       </div>
-                      <button type="button" style="margin-left: auto" class="form-control btn btn-light"
-                              @click="col.buttonFunction(Popup.Fields, REST)">{{ col.label }}
-                      </button>
-                    </div>
 
 
-                    <!-- Картинки -->
-                    <div class="input-group mb-3" v-if="col.popupType==='image'">
+                      <!-- Картинки -->
+                      <div class="input-group mb-3" v-if="col.popupType==='image'">
 
-                      <div class="input-group-prepend">
+                        <div class="input-group-prepend">
                                                 <span class="input-group-text"
                                                       style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                       :id="'basic-addon'+col.label">{{ col.editName }}</span>
-                      </div>
-
-                      <label v-show="Popup.Avatar.isEnabled===false" :for="'basic-addon-file'+col.label"
-                             class="datatable-custom-file-upload"
-                             :aria-describedby="'basic-addon'+col.label"
-                      >
-                        <img class="data-table-popup-image" :src="Popup.Fields[col.field]"/>
-                        <div style="margin: auto"
-                             v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">
-                          📁
                         </div>
-                      </label>
 
-                      <!-- Кнопки -->
-                      <div v-show="Popup.Avatar.isEnabled===false" class="" style="margin-top: 5px; margin-left: auto;">
-                        <div class="btn btn-primary" style="display: block"
-                             @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">
-                          Обрезать
-                        </div>
-                        <div class="btn btn-primary" style="display: block; margin-top: 5px"
-                             @click="showAvatarOriginal(col.field)">Оригинал
-                        </div>
-                      </div>
-
-                      <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled"
-                           :datatable-id="'basic-addon-file-avatar-'+col.label">
-                        <div class="datatable-popup-avatar-space-infopanel">
-                          <div>Размер</div>
-                          <input type="range" min=1 max=3 step=0.02 v-model="Popup.Avatar.scale"/>
-                          <div v-show="Popup.Avatar.isEnabled" class="btn btn-primary"
-                               @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, true, false)">
-                            Сохранить
+                        <label v-show="Popup.Avatar.isEnabled===false" :for="'basic-addon-file'+col.label"
+                               class="datatable-custom-file-upload"
+                               :aria-describedby="'basic-addon'+col.label"
+                        >
+                          <img class="data-table-popup-image" :src="Popup.Fields[col.field]"/>
+                          <div style="margin: auto"
+                               v-if="Popup.Fields[col.field]===null || Popup.Fields[col.field]===undefined || Popup.Fields[col.field]===''">
+                            📁
                           </div>
-                          <div v-show="Popup.Avatar.isEnabled" class="btn btn-secondary"
-                               @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, false)">
-                            Отменить
+                        </label>
+
+                        <!-- Кнопки -->
+                        <div v-show="Popup.Avatar.isEnabled===false" class=""
+                             style="margin-top: 5px; margin-left: auto;">
+                          <div class="btn btn-primary" style="display: block"
+                               @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">
+                            Обрезать
+                          </div>
+                          <div class="btn btn-primary" style="display: block; margin-top: 5px"
+                               @click="showAvatarOriginal(col.field)">Оригинал
                           </div>
                         </div>
+
+                        <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled"
+                             :datatable-id="'basic-addon-file-avatar-'+col.label">
+                          <div class="datatable-popup-avatar-space-infopanel">
+                            <div>Размер</div>
+                            <input type="range" min=1 max=3 step=0.02 v-model="Popup.Avatar.scale"/>
+                            <div v-show="Popup.Avatar.isEnabled" class="btn btn-primary"
+                                 @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, true, false)">
+                              Сохранить
+                            </div>
+                            <div v-show="Popup.Avatar.isEnabled" class="btn btn-secondary"
+                                 @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, false)">
+                              Отменить
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field
+                               style="display: none;" @change="fileSelected($event,col.field)"/>
                       </div>
 
+                      <!-- Сообщение об ошибке -->
+                      <div :style="'margin-bottom: '+optsInfo.popupRowMargin +'px'">
+                        <span style="color: red" v-text="Table.schema[colindex].message"></span>
+                      </div>
 
-                      <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field
-                             style="display: none;" @change="fileSelected($event,col.field)"/>
                     </div>
 
-                  </div>
-
-                  <!-- Селекторы -->
-                  <div v-else class="input-group mb-3">
-                    <div class="input-group-prepend">
+                    <!-- Селекторы -->
+                    <div v-else class="input-group mb-3">
+                      <div class="input-group-prepend">
                                             <span class="input-group-text"
                                                   style="min-width: 200px; max-width: 200px; word-wrap: break-word; overflow-wrap: break-word;"
                                                   :id="'basic-addon'+col.label">{{ col.editName }}</span>
+                      </div>
+                      <select v-model="Popup.Fields[col.field]" class="form-control">
+                        <option :value="null" :disabled="!col.isEdit && Popup.editField!==''">
+
+                        </option>
+                        <option v-for="item in col.selectResults"
+                                :value="item[col.linkedto.field]"
+                                :disabled="!col.isEdit && Popup.editField!==''">
+                          {{ col.selectRepresentAs(item) }}
+                        </option>
+                      </select>
                     </div>
-                    <select v-model="Popup.Fields[col.field]" class="form-control">
-                      <option :value="null" :disabled="!col.isEdit && Popup.editField!==''">
-
-                      </option>
-                      <option v-for="item in col.selectResults"
-                              :value="item[col.linkedto.field]"
-                              :disabled="!col.isEdit && Popup.editField!==''">
-                        {{ col.selectRepresentAs(item) }}
-                      </option>
-                    </select>
                   </div>
-                </div>
-              </form>
-            </div>
+                </form>
+              </div>
 
-            <div class="datatable-modal-footer">
-              <button v-show="optsInfo.canRemove" class="btn btn-dark datatable-popup-remove"
-                      @click="removePopup()">
-                Удалить
-              </button>
-              <button class="btn btn-light" style="text-align: center"
-                      @click="Popup.isPopupShowed=false">
-                Отмена
-              </button>
-              <button class="btn btn-success datatable-popup-save" @click="savePopup()">
-                {{ Popup.buttonSaveName }}
-              </button>
+              <div class="datatable-modal-footer">
+                <button v-show="optsInfo.canRemove" class="btn btn-dark datatable-popup-remove"
+                        @click="removePopup()">
+                  Удалить
+                </button>
+                <button class="btn btn-light" style="text-align: center"
+                        @click="Popup.isPopupShowed=false">
+                  Отмена
+                </button>
+                <button class="btn btn-success datatable-popup-save" @click="savePopup()">
+                  {{ Popup.buttonSaveName }}
+                </button>
+              </div>
             </div>
-          </div>
-        </slot>
+          </slot>
+        </div>
+
+
       </div>
-
-
-    </div>
     </slot>
   </div>
 
@@ -487,7 +496,7 @@ export default {
         let data = await SuperTHAT.REST.get(request.tablename, request.where, request.expand, request.fields, request.sort, request.page, request.perPage, null, request.format, request.titles);
 
         // Обычный ответ с выводом таблицы: сохраняем строки
-        if(format === null) {
+        if (format === null) {
           let rows = data.data;
 
           // Обрабатываем данные перед выводом
@@ -513,11 +522,11 @@ export default {
         // Ответ с блобом: сохраняем файл
         else {
 
-          let filename = request.tablename + "_" + (new Date()).toISOString().slice(0,10).replace(/-/g,"") + ".xlsx"
+          let filename = request.tablename + "_" + (new Date()).toISOString().slice(0, 10).replace(/-/g, "") + ".xlsx"
 
           // It is necessary to create a new blob object with mime-type explicitly set
           // otherwise only Chrome works like it should
-          const blob = new Blob([data.data], { type: data.MimeType || 'application/octet-stream' });
+          const blob = new Blob([data.data], {type: data.MimeType || 'application/octet-stream'});
           if (typeof window.navigator.msSaveBlob !== 'undefined') {
             // IE doesn't allow using a blob object directly as link href.
             // Workaround for "HTML7007: One or more blob URLs were
@@ -568,6 +577,11 @@ export default {
 
       // Очищаем попап от старых значений
       Vue.set(this.Popup, 'Fields', {});
+
+      this.Table.schema.forEach(res=>{
+        res.message = '';
+      })
+
       // и снимаем выделенные файлы
       document.querySelectorAll('[vuedatatable-file-field]').forEach(node => node.value = "");
 
@@ -663,9 +677,20 @@ export default {
           if (column.defaultValue !== undefined)
             newFields[column.field] = column.defaultValue;
 
-        this.REST.create(this.Table.name, newFields).then(res => {
-          that.Table.rows.unshift(res.data);
-        })
+        this.REST.create(this.Table.name, newFields)
+            .then(res => {
+              that.Table.rows.unshift(res.data);
+              Vue.set(that.Popup, 'isPopupShowed', false);
+            })
+            .catch(async err => {
+              if (err.status === 422) {
+                err.body.forEach(r => {
+                  let finded = that.Table.schema.find(tcolumn => tcolumn.field === r.field);
+                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.','- обязательное поле');
+                })
+                that.$set(that.Table, 'schema', Array.from(that.Table.schema));
+              }
+            })
 
       }
       // Изменение
@@ -681,10 +706,21 @@ export default {
           fields[name] = this.Popup.Fields[name];
         }
 
-        this.REST.edit(this.Table.name, this.Popup.editID, fields);
+        this.REST.edit(this.Table.name, this.Popup.editID, fields)
+            .then(res=>{
+              Vue.set(that.Popup, 'isPopupShowed', false);
+            })
+            .catch(async err => {
+              if (err.status === 422) {
+                err.body.forEach(r => {
+                  let finded = that.Table.schema.find(tcolumn => tcolumn.field === r.field);
+                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.','- обязательное поле');
+                })
+                that.$set(that.Table, 'schema', Array.from(that.Table.schema));
+              }
+            })
 
       }
-      Vue.set(this.Popup, 'isPopupShowed', false);
     },
 
     removePopup: function () {
@@ -788,7 +824,7 @@ export default {
       if (Date.now() - this.microPauseFilterLastDT > 300) {
 
         // минимальное число символов для запроса
-        if(col!==undefined && (col.type==='text' || col.type==='fulltext' || col.type==='fixed') && col.filter.length < col.filterMinSymbolsRequest) return;
+        if (col !== undefined && (col.type === 'text' || col.type === 'fulltext' || col.type === 'fixed') && col.filter.length < col.filterMinSymbolsRequest) return;
 
         for (let ThisVueInstance of this.$children) {
           if (typeof ThisVueInstance.processRows === 'function') {
@@ -843,12 +879,12 @@ export default {
 
     },
 
-    hasSlot (name = 'default') {
-      return !!this.$slots[ name ] || !!this.$scopedSlots[ name ];
+    hasSlot(name = 'default') {
+      return !!this.$slots[name] || !!this.$scopedSlots[name];
     },
 
     export(format) {
-      this.getData({page: 1, perPage:999999999, sortBy: null, sortDir: null}, 'xlsx');
+      this.getData({page: 1, perPage: 999999999, sortBy: null, sortDir: null}, 'xlsx');
     }
 
   },
@@ -956,6 +992,8 @@ export default {
                 isShow: true,
                 isEdit: true,
                 isShowOnPopup: true,
+
+                message: '',
 
               });
               return col;
@@ -1110,6 +1148,7 @@ export default {
         canEdit: true,
         where: {},
         filterRowMargin: 0,
+        popupRowMargin: 10
       }, this.opts);
     },
   }
@@ -1309,6 +1348,7 @@ export default {
   width: 80px;
   height: 80px;
 }
+
 .lds-grid div {
   position: absolute;
   width: 16px;
@@ -1317,51 +1357,61 @@ export default {
   background: black;
   animation: lds-grid 1.2s linear infinite;
 }
+
 .lds-grid div:nth-child(1) {
   top: 8px;
   left: 8px;
   animation-delay: 0s;
 }
+
 .lds-grid div:nth-child(2) {
   top: 8px;
   left: 32px;
   animation-delay: -0.4s;
 }
+
 .lds-grid div:nth-child(3) {
   top: 8px;
   left: 56px;
   animation-delay: -0.8s;
 }
+
 .lds-grid div:nth-child(4) {
   top: 32px;
   left: 8px;
   animation-delay: -0.4s;
 }
+
 .lds-grid div:nth-child(5) {
   top: 32px;
   left: 32px;
   animation-delay: -0.8s;
 }
+
 .lds-grid div:nth-child(6) {
   top: 32px;
   left: 56px;
   animation-delay: -1.2s;
 }
+
 .lds-grid div:nth-child(7) {
   top: 56px;
   left: 8px;
   animation-delay: -0.8s;
 }
+
 .lds-grid div:nth-child(8) {
   top: 56px;
   left: 32px;
   animation-delay: -1.2s;
 }
+
 .lds-grid div:nth-child(9) {
   top: 56px;
   left: 56px;
   animation-delay: -1.6s;
 }
+
 @keyframes lds-grid {
   0%, 100% {
     opacity: 1;
@@ -1376,6 +1426,7 @@ export default {
   width: 80px;
   height: 80px;
 }
+
 .lds-dual-ring:after {
   content: " ";
   display: block;
@@ -1387,6 +1438,7 @@ export default {
   border-color: gray transparent gray transparent;
   animation: lds-dual-ring 1.2s linear infinite;
 }
+
 @keyframes lds-dual-ring {
   0% {
     transform: rotate(0deg);
