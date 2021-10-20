@@ -10,6 +10,7 @@
             td f
         template(v-slot:popupHeader="bind")
           div TEST
+
 </template>
 
 <script>

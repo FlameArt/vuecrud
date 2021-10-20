@@ -10,9 +10,12 @@
       </vue-avatar>
     </div>
 
-    <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px" v-show="optsInfo.canAdd===true"
-         @click="popupAdd()">
-      + Добавить
+    <div @click="popupAdd()" v-show="optsInfo.canAdd===true">
+      <slot name="AddButton">
+        <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px">
+          + Добавить
+        </div>
+      </slot>
     </div>
 
     <div>
@@ -578,7 +581,7 @@ export default {
       // Очищаем попап от старых значений
       Vue.set(this.Popup, 'Fields', {});
 
-      this.Table.schema.forEach(res=>{
+      this.Table.schema.forEach(res => {
         res.message = '';
       })
 
@@ -686,7 +689,7 @@ export default {
               if (err.status === 422) {
                 err.body.forEach(r => {
                   let finded = that.Table.schema.find(tcolumn => tcolumn.field === r.field);
-                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.','- обязательное поле');
+                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.', '- обязательное поле');
                 })
                 that.$set(that.Table, 'schema', Array.from(that.Table.schema));
               }
@@ -707,14 +710,14 @@ export default {
         }
 
         this.REST.edit(this.Table.name, this.Popup.editID, fields)
-            .then(res=>{
+            .then(res => {
               Vue.set(that.Popup, 'isPopupShowed', false);
             })
             .catch(async err => {
               if (err.status === 422) {
                 err.body.forEach(r => {
                   let finded = that.Table.schema.find(tcolumn => tcolumn.field === r.field);
-                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.','- обязательное поле');
+                  if (finded !== undefined) finded.message = r.message.replace(finded.field + ' ', finded.label + ' ').replace('cannot be blank.', '- обязательное поле');
                 })
                 that.$set(that.Table, 'schema', Array.from(that.Table.schema));
               }
