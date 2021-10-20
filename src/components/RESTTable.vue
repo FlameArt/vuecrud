@@ -261,7 +261,7 @@ let thatTable = VuejsDatatableFactory.useDefaultType(false)
     .registerTableType('datatable', tableType => tableType
         .mergeSettings({
           table: {
-            class: 'table table-hover table-striped',
+            class: 'table table-hover table-striped no-border',
             row: {
               class: 'datatable-edit-link'
             },
@@ -1472,6 +1472,10 @@ export default {
 
 .sort_up {
   //background: im;
+}
+
+.no-border {
+  border: 0;
 }
 
 </style>
