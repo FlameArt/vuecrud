@@ -1051,7 +1051,7 @@ export default {
             // если у неё нет замещатора и редактирование поддерживается
             for (let i = 0; i < cols.length; i++) {
               if (cols[i].representedAs === undefined && that.optsInfo.canEdit === true) {
-                if (i === 0)
+                if (i === 0 && false)
                   cols[i].representedAs = function (row) {
                     return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">' + row[cols[i].field] + '</a>'
                   }
