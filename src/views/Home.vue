@@ -21,6 +21,9 @@ export default {
   data: function () {
     return {
       columnsupdated: function (cols) {
+
+        cols.new('newColumn',{label: 'TEST ID', editDesc: 'TEST ID', representedAs: row=> 'Test Value', interpolate: true});
+
         cols.set('id', {isShowOnPopup: false, label: "LOL", editName: "LLLLAL", hasFilter: true, type: "number"});
         cols.delete('image', {isShowOnPopup: true, popupType: 'image', isLoadToTable: false});
         cols.set('luuuuuuuuuuuuuuuuuuuuuuul',{label: 'TRUST INFO', hasFilter: true, filterRow: 1, filterColumn: 0, filterMinSymbolsRequest: 2, editName: 'TRUST INFO', editDesc: 'Инфа', isShow: false, isShowOnPopup: true, isEdit: false});

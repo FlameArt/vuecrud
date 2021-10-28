@@ -54,7 +54,10 @@ Vue.use(vuecrud);
         
         // Удалить колонку name при выводе
         cols.delete('name');
-                    
+          
+        // Добавить новую колонку, которой нет в выдаче
+        cols.new('newColumn',{label: 'TRUST ID', editDesc: 'User ID', representedAs: row=> row.name + ' ' + row.nickname, interpolate: true});
+        
     }
 
 

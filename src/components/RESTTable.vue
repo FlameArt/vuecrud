@@ -865,6 +865,83 @@ export default {
 
     export(format) {
       this.getData({page: 1, perPage: 999999999, sortBy: null, sortDir: null}, 'xlsx');
+    },
+
+    defaultColumnFields: function (col) {
+      return {
+
+        label: col.comment,
+        field: col.name,
+
+        // Стандартное значение колонки при вставке нового элемента, если оно не было заполнено
+        defaultValue: undefined,
+
+
+        filter: '',
+        filterRange: {from: '', to: ''},
+        hasFilter: false,
+
+        // Минимальное число символов в строке фильтра, после которого будет произведён запрос
+        filterMinSymbolsRequest: 0,
+
+        // Позиции фильтров
+        filterRow: 0,
+        filterColumn: 0,
+
+        // Ленивая загрузка полей базы или вообще их не загрузка для экономии траффика
+        isLoadToTable: true,
+        isLoadToPopup: true,
+
+        // Тип фильтрации для поля, выясняется автоматически на основе типа записи, но может быть переопределён
+        // text - поиск через частичное совпадение (LIKE)
+        // number - числовой поиск в диапазоне от - до
+        // fixed - точное совпадение
+        // loadKeys - загрузка значений из внешней таблицы
+        type: col.type === "integer" ? 'number' : 'text',
+
+        // Тип элемента в попапе
+        // string - обычная строка или селектор строк
+        // text - text area
+        // button - кнопка
+        popupType: 'string',
+
+        // Функция кнопки
+        buttonFunction: function (row) {
+        },
+
+        // Количество строк текстового поля
+        popupTextRows: 6,
+
+        linkedto: col.linkedto,
+        selectResults: [],
+        /**
+         * Загружать ли данные от foreign keys, т.к. данных может быть много, по-умолчанию выключено
+         */
+        isLoadKeys: false,
+
+        // Какие параметры при загрузке ключа
+        loadKeysParams: {
+          where: null,
+          expand: null,
+          fields: null,
+          sortfields: null,
+          page: 1,
+          perPage: 9999
+        },
+
+        selectRepresentAs: function (item) {
+          return item
+        },
+        editName: col.name,
+        editDesc: col.comment,
+
+        isShow: true,
+        isEdit: true,
+        isShowOnPopup: true,
+
+        message: '',
+
+      }
     }
 
   },
@@ -902,80 +979,7 @@ export default {
             // number - поиск через от - до
             // fixed - точное совпадение
             let cols = that.Table.schema.map(col => {
-              Object.assign(col, {
-
-                label: col.comment,
-                field: col.name,
-
-                // Стандартное значение колонки при вставке нового элемента, если оно не было заполнено
-                defaultValue: undefined,
-
-
-                filter: '',
-                filterRange: {from: '', to: ''},
-                hasFilter: false,
-
-                // Минимальное число символов в строке фильтра, после которого будет произведён запрос
-                filterMinSymbolsRequest: 0,
-
-                // Позиции фильтров
-                filterRow: 0,
-                filterColumn: 0,
-
-                // Ленивая загрузка полей базы или вообще их не загрузка для экономии траффика
-                isLoadToTable: true,
-                isLoadToPopup: true,
-
-                // Тип фильтрации для поля, выясняется автоматически на основе типа записи, но может быть переопределён
-                // text - поиск через частичное совпадение (LIKE)
-                // number - числовой поиск в диапазоне от - до
-                // fixed - точное совпадение
-                // loadKeys - загрузка значений из внешней таблицы
-                type: col.type === "integer" ? 'number' : 'text',
-
-                // Тип элемента в попапе
-                // string - обычная строка или селектор строк
-                // text - text area
-                // button - кнопка
-                popupType: 'string',
-
-                // Функция кнопки
-                buttonFunction: function (row) {
-                },
-
-                // Количество строк текстового поля
-                popupTextRows: 6,
-
-                linkedto: col.linkedto,
-                selectResults: [],
-                /**
-                 * Загружать ли данные от foreign keys, т.к. данных может быть много, по-умолчанию выключено
-                 */
-                isLoadKeys: false,
-
-                // Какие параметры при загрузке ключа
-                loadKeysParams: {
-                  where: null,
-                  expand: null,
-                  fields: null,
-                  sortfields: null,
-                  page: 1,
-                  perPage: 9999
-                },
-
-                selectRepresentAs: function (item) {
-                  return item
-                },
-                editName: col.name,
-                editDesc: col.comment,
-
-                isShow: true,
-                isEdit: true,
-                isShowOnPopup: true,
-
-                message: '',
-
-              });
+              Object.assign(col, that.defaultColumnFields(col));
               return col;
             });
 
@@ -984,7 +988,7 @@ export default {
               configurable: true, enumerable: false, value: function (FieldName, Params) {
                 let findedObj = this.find(res => res.field === FieldName);
                 if (findedObj === undefined) {
-                  console.error("VUE Datatable Set Column: Object not found - " + FieldName);
+                  console.error("VUE Datatable Set Column: Object not found - " + FieldName + '. Use NEW() instead [for custom fields]');
                   return this;
                 }
                 Object.assign(findedObj, Params);
@@ -993,6 +997,25 @@ export default {
                 return this;
               }
             });
+            Object.defineProperty(cols, 'new', {
+              configurable: true, enumerable: false, value: function (FieldName, Params) {
+                let findedObj = this.find(res => res.field === FieldName);
+
+                // Если объект уже существует - делаем обычную операцию set
+                if (findedObj !== undefined) {
+                  Object.assign(findedObj, Params);
+                  // Уточняем название в попапе, если существует кастомный label
+                  if (findedObj.editName === findedObj.name && findedObj.label !== findedObj.comment) findedObj.editName = findedObj.label;
+                  return this;
+                }
+
+                // Объекта нет - добавляем в схему
+                this.push(Object.assign(that.defaultColumnFields({field: FieldName, label: FieldName, name: FieldName, comment: FieldName, type: 'text'}), Params));
+
+                return this;
+              }
+            });
+
             Object.defineProperty(cols, 'delete', {
               configurable: true, enumerable: false, value: function (FieldName, Params) {
 
