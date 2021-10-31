@@ -688,6 +688,10 @@ export default {
 
         this.REST.edit(this.Table.name, this.Popup.editID, fields)
             .then(res => {
+              let indx = that.Table.rows.findIndex(tx=>tx.id===res.data.id);
+              for (const dataKey in res.data) {
+                that.$set(that.Table.rows[indx], dataKey, res.data[dataKey]);
+              }
               Vue.set(that.Popup, 'isPopupShowed', false);
             })
             .catch(async err => {
