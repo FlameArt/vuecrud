@@ -10,6 +10,9 @@
             td f
         template(v-slot:popupHeader="bind")
           div TEST
+        template(v-slot:Buttons="")
+          div Test
+          div Test2
 
 </template>
 

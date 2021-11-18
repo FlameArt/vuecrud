@@ -10,12 +10,15 @@
       </vue-avatar>
     </div>
 
-    <div @click="popupAdd()" v-show="optsInfo.canAdd===true">
-      <slot name="AddButton">
-        <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px">
-          + Добавить
-        </div>
-      </slot>
+    <div style="display: flex; flex-direction: row">
+      <div @click="popupAdd()" v-show="optsInfo.canAdd===true">
+        <slot name="AddButton">
+          <div class="btn btn-primary" style="cursor: pointer; margin-bottom: 8px">
+            + Добавить
+          </div>
+        </slot>
+      </div>
+      <slot name="Buttons"></slot>
     </div>
 
     <div>
@@ -688,7 +691,7 @@ export default {
 
         this.REST.edit(this.Table.name, this.Popup.editID, fields)
             .then(res => {
-              let indx = that.Table.rows.findIndex(tx=>tx.id===res.data.id);
+              let indx = that.Table.rows.findIndex(tx => tx.id === res.data.id);
               for (const dataKey in res.data) {
                 that.$set(that.Table.rows[indx], dataKey, res.data[dataKey]);
               }
@@ -1014,7 +1017,13 @@ export default {
                 }
 
                 // Объекта нет - добавляем в схему
-                this.push(Object.assign(that.defaultColumnFields({field: FieldName, label: FieldName, name: FieldName, comment: FieldName, type: 'text'}), Params));
+                this.push(Object.assign(that.defaultColumnFields({
+                  field: FieldName,
+                  label: FieldName,
+                  name: FieldName,
+                  comment: FieldName,
+                  type: 'text'
+                }), Params));
 
                 return this;
               }
