@@ -156,21 +156,35 @@ Vue.use(vuecrud);
     
 Остальные параметры в: https://gerkindev.github.io/vuejs-datatable/classes/column.html
 
-## Свой Popup
+## Шаблоны
 
-*Примеры на Pug*
+Все примеры на Pug
+
+### Свой Popup
+
 
 Можно установить через слот `popup`
 
         template(v-slot:popup)
           div(style="width: 100%; min-height:100%; flex-direction:row; flex-grow: 2; background:#FFF; overflow-y:scroll;") Hello
 
-## Кастомный шаблон строки таблицы
+### Кастомный шаблон строки таблицы
 
         template(v-slot:row="binds")
           tr
             td {{binds.row.name}}
             td {{binds.columns[0].name}}
+            
+### Строка кнопки добавить и сама кнопка
+
+Слот для поля с кнопками над таблицей
+
+        template(v-slot:Buttons)
+
+Слот кнопки добавления отдельно
+
+        template(v-slot:AddButton)
+
 
 ## Ленивая загрузка паджинации
 
