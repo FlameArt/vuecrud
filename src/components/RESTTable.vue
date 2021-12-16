@@ -58,7 +58,7 @@
               <td v-for="col in Table.columns"><input v-model="col.filter"></td>
             </tr>
             <tr>
-              <td v-for="col in columns">{{ row[col.field] }}</td>
+              <td v-for="col in columns">{{ row[col.field] === null || row[col.field] === undefined ? "" : row[col.field] }}</td>
             </tr>
           </slot>
         </template>
