@@ -1,6 +1,6 @@
 {
   "name": "flamecrud",
-  "version": "1.0.78",
+  "version": "1.0.80",
   "description": "Vue CRUD component for Yii2-based REST services (like https://github.com/FlameArt/auto-rest-template-yii2)",
   "author": "FlameArt",
   "license": "MIT",

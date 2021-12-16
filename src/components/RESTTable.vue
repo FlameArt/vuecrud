@@ -1089,11 +1089,11 @@ export default {
               if (cols[i].representedAs === undefined && that.optsInfo.canEdit === true) {
                 if (i === 0 && false)
                   cols[i].representedAs = function (row) {
-                    return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">' + row[cols[i].field] + '</a>'
+                    return '<a class="btn btn-light" style="color: #0aaee7;" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">'  + (row[cols[i].field] ? row[cols[i].field] : "" ) +  '</a>'
                   }
                 else
                   cols[i].representedAs = function (row) {
-                    return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">' + row[cols[i].field] + '</a>'
+                    return '<a class="datatable-edit-link" onclick="document.querySelectorAll(\'[flamecrud]\')[0].__vue__.popupEdit(\'' + that.Table.schema[0].name + '\',\'' + row[that.Table.schema[0].name] + '\',\'' + that.Table.schema[0].type + '\')">'  + (row[cols[i].field] ? row[cols[i].field] : "" ) +  '</a>'
                   }
                 cols[i].interpolate = true;
               }
