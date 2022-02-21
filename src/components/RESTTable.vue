@@ -153,7 +153,7 @@
                         </label>
 
                         <!-- Кнопки -->
-                        <div v-show="Popup.Avatar.isEnabled===false" class=""
+                        <div v-show="Popup.Avatar.isEnabled===false && col.popupImage.buttons" class=""
                              style="margin-top: 5px; margin-left: auto;">
                           <div class="btn btn-primary" style="display: block"
                                @click="showAvatarPopup(col.field, 'basic-addon-file-avatar-'+col.label, false, true)">
@@ -164,7 +164,7 @@
                           </div>
                         </div>
 
-                        <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled"
+                        <div class="datatable-popup-avatar-space" v-show="Popup.Avatar.isEnabled && col.popupImage.buttons"
                              :datatable-id="'basic-addon-file-avatar-'+col.label">
                           <div class="datatable-popup-avatar-space-infopanel">
                             <div>Размер</div>
@@ -918,6 +918,11 @@ export default {
 
         // Количество строк текстового поля
         popupTextRows: 6,
+
+        // Настройка загрузчика картинок
+        popupImage: {
+          buttons: false,
+        },
 
         linkedto: col.linkedto,
         selectResults: [],

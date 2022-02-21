@@ -144,6 +144,11 @@ Vue.use(vuecrud);
         // Если isEdit=false и isShowOnPopup=true, оно будет выключено, но показано
         isEdit: true,
         
+        popupImage: {
+            // прогружать ли кнопки
+            buttons: false
+        }
+        
     }
     
 #### Дополнительные параметры колонок, которые предустановлены из vue-datatable
