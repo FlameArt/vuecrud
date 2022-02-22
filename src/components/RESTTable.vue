@@ -2,6 +2,7 @@
 
   <div class="col-xs-12 table-responsive" flamecrud>
 
+    <canvas style="display: none" ref="canv"></canvas>
 
     <div style="z-index: 999999999" id="PopupAvatarPopup" v-show="Popup.Avatar.isEnabled">
       <vue-avatar :width="Popup.Avatar.width" :height="Popup.Avatar.height" :scale="Popup.Avatar.scale"
@@ -182,7 +183,7 @@
 
 
                         <input :id="'basic-addon-file'+col.label" type="file" vuedatatable-file-field
-                               style="display: none;" @change="fileSelected($event,col.field)"/>
+                               style="display: none;" @change="fileSelected($event,col.field, col)"/>
                       </div>
 
                       <!-- Сообщение об ошибке -->
@@ -728,7 +729,7 @@ export default {
     /**
      * Файл выбран
      */
-    fileSelected: function (event, Field) {
+    fileSelected: function (event, Field, col) {
 
       let that = this;
 
@@ -740,7 +741,9 @@ export default {
 
         var fr = new FileReader();
         fr.onload = function () {
-          Vue.set(that.Popup.Fields, Field, fr.result)
+          that.convertImage(col.popupImage.convertTo, fr.result, (res)=>{
+            Vue.set(that.Popup.Fields, Field, res);
+          })
         };
         fr.readAsDataURL(files[0]);
 
@@ -874,6 +877,20 @@ export default {
       this.getData({page: 1, perPage: 999999999, sortBy: null, sortDir: null}, 'xlsx');
     },
 
+    convertImage(format, dataURI, callback) {
+      let img = new window.Image();
+      let canvas = this.$refs.canv;
+      let ctx = canvas.getContext("2d");
+      img.addEventListener("load", ()=> {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.height = img.height;
+        canvas.width = img.width;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        callback(canvas.toDataURL(format));
+      });
+      img.setAttribute("src", dataURI);
+    },
+
     defaultColumnFields: function (col) {
       return {
 
@@ -922,6 +939,7 @@ export default {
         // Настройка загрузчика картинок
         popupImage: {
           buttons: false,
+          convertTo: 'image/jpeg'
         },
 
         linkedto: col.linkedto,
