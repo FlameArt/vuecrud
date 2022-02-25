@@ -1163,7 +1163,7 @@ export default {
 
           // Загружаем данные зависимых таблиц
           let allPromises = [];
-          for (let column of that.Table.columns) {
+          for (let column of that.Table.schema) {
             if (column.linkedto !== null && column.isLoadKeys === true) {
               allPromises.push(new Promise((resolve, reject) => {
                 // TODO: определить почему не прикрепляются параметры по-умолчанию, undefined вместо null
